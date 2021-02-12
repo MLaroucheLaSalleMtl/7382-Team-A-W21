@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Breakable
   layers:
   - Default
   - TransparentFX
@@ -13,11 +14,10 @@ TagManager:
   - UI
   - Interactable
   - Level
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - PlayerProjectiles
+  - EnemyProjectiles
   - 
   - 
   - 
