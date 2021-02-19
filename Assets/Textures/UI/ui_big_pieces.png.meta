@@ -26,6 +26,24 @@ TextureImporter:
   - first:
       213: -4728184045950625339
     second: hud_dash_unlit
+  - first:
+      213: 3886824488428826429
+    second: quickSwap_1
+  - first:
+      213: -5226010450988073647
+    second: quickSwap_2
+  - first:
+      213: -275632677278881016
+    second: quickSwap_3
+  - first:
+      213: 1964184552216471374
+    second: quickSwap_1_lit
+  - first:
+      213: 6310403012640857278
+    second: quickSwap_2_lit
+  - first:
+      213: -2602719629936617034
+    second: quickSwap_3_lit
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -302,6 +320,132 @@ TextureImporter:
       bones: []
       spriteID: 5c9917449ad126eb0800000000000000
       internalID: -4728184045950625339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_1
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 199
+        width: 54
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d3fe6196746c0f530800000000000000
+      internalID: 3886824488428826429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_2
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 199
+        width: 44
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 15d7064fe2b7977b0800000000000000
+      internalID: -5226010450988073647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_3
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 199
+        width: 58
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 80b6d465a81cc2cf0800000000000000
+      internalID: -275632677278881016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_1_lit
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 158
+        width: 54
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e472c2c817f224b10800000000000000
+      internalID: 1964184552216471374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_2_lit
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 158
+        width: 44
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ebc53062b1e039750800000000000000
+      internalID: 6310403012640857278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: quickSwap_3_lit
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 158
+        width: 58
+        height: 40
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b911bf494841ebd0800000000000000
+      internalID: -2602719629936617034
       vertices: []
       indices: 
       edges: []

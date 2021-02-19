@@ -13,10 +13,10 @@ public enum Direction
     [InspectorName("Down")]
     DOWN = 270,
 }
-
+[RequireComponent(typeof(Rigidbody2D))]
 public class LivingEntity : MonoBehaviour
 {
-    protected int hp = 10; //Health
+    public int hp = 10; //Health
     protected GameManager manager;
     protected Animator anim;
     public Rigidbody2D body;
@@ -28,7 +28,10 @@ public class LivingEntity : MonoBehaviour
     IEnumerator knockback;
     protected bool invincible = false;
     protected Renderer myRenderer;
-    
+    protected float moveSpeed = 3;
+    protected Vector3 hitBoxOffset = new Vector3(0,0,0);           //Offset from the entity of its hitbox 
+    protected float offsetMagnitude = 0f;     //Magnitude of the entity hitbox offset
+    private const float shieldKnockback = 5f;
 
 
     // Start is called before the first frame update
@@ -83,9 +86,15 @@ public class LivingEntity : MonoBehaviour
 
         body.velocity = Vector2.zero;
         hp -= damage;
-        Vector2 distance = gameObject.transform.position - hitting.transform.position;
-        distance = distance.normalized * damage * multiplier;
-        body.velocity = (distance);
+        if (hitting != null)
+        {
+            Vector2 distance = gameObject.transform.position - hitting.transform.position;
+            if (damage > 0)
+                distance = distance.normalized * damage * multiplier;   //Normal hit
+            else
+                distance = distance.normalized * shieldKnockback * multiplier;   //Hit blocked by shield
+            body.velocity = (distance);
+        }
         //If hp reaches 0
         if (this.hp <= 0)
         {
@@ -107,6 +116,27 @@ public class LivingEntity : MonoBehaviour
         //Play death animation
     }
 
+    protected Vector3 CalculateOffset(float offsetMagnitude)
+    {
+        Vector3 offset = new Vector3();
+        switch (direction)         //Decide which side to attack on, based on the direction we're facing
+        {
+            case Direction.UP:
+                offset = new Vector3(0f, offsetMagnitude, 0f);
+                break;
+            case Direction.DOWN:
+                offset = new Vector3(0f, -offsetMagnitude, 0f);
+                break;
+            case Direction.LEFT:
+                offset = new Vector3(-offsetMagnitude, 0f, 0f);
+                break;
+            case Direction.RIGHT:
+                offset = new Vector3(offsetMagnitude, 0f, 0f);
+                break;
+        }
+        return offset;
+    }
+
     //Coroutines
     private IEnumerator KnockBackCoolDown() 
     {
@@ -118,7 +148,7 @@ public class LivingEntity : MonoBehaviour
         knockback = null;
     }
 
-    protected IEnumerator invFrames(int seconds)
+    public IEnumerator invFrames(int seconds)
     {
         Debug.Log("Invince");
         int count = 0;

@@ -7,8 +7,8 @@ public class Bat : BaseEnemyAI
     // Start is called before the first frame update
     void Start()
     {
-        this.approach = 0f;     //Bat is a melee enemy
-        this.speed = 4f;
+        this.approach = 0.2f;     //Bat is a melee enemy
+        this.moveSpeed = 4f;
         this.attack_damage = 1;
         base.Start();
     }

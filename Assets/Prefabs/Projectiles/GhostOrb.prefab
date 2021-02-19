@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6258319988817248226}
   - component: {fileID: 6258319988817248225}
   - component: {fileID: 4743442877957276760}
-  - component: {fileID: 5015214466266728795}
   m_Layer: 11
   m_Name: GhostOrb
   m_TagString: Untagged
@@ -135,20 +134,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed64e834ef2a594eaedb657e5672cf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
---- !u!58 &5015214466266728795
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6258319988817248224}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.6
+  damage: 7

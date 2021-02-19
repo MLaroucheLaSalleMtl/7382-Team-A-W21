@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Breakable
+  - Chest
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - Enemy
   - PlayerProjectiles
   - EnemyProjectiles
-  - 
-  - 
+  - Shield
+  - Lava
   - 
   - 
   - 

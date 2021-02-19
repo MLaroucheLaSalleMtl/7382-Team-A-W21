@@ -21,19 +21,18 @@ public class BaseEnemyAI : LivingEntity
     [Header("AI Behaviour")]
     [Tooltip("What am I looking for?")] public Transform target;
     [Tooltip("What can we NOT see through?")] [SerializeField] private LayerMask blinds;
-    [Tooltip("How close should I get to my destination before I say I've arrived? [Do not change if you do not understand]")] [SerializeField] private float threshold = 1f;
+    [Tooltip("How close should I get to my destination before I say I've arrived? [Do not change if you do not understand]")] [SerializeField] protected float threshold = 1f;
     [Header("AI Stats")]
-    [Tooltip("How wide is my field of view? [Should keep above 90 if you don't want blind spots]")] [Range(2, 360)] public float fov = 90;
+    [Tooltip("How wide is my field of view? [Should keep above 90 if you don't want blind spots]")] [Range(2, 360)] public float fov = 120;
     [Tooltip("How far can I see?")] [Range(1, 100)] public float range = 20;
     [Tooltip("How far can I wander?")] [Range(1, 100)] public float wanderRange = 10;
     [Tooltip("How close do I want to get? Also the auto-detect range!")] [Range(0, 20)] public float approach = 7;
-    [Tooltip("How fast should I move?")] public float speed = 3;
     [Space]
     [Header("Enemy Attack Parameters")]
-    [Tooltip("Layer of the target we can attack (Player should be on this layer)")] [SerializeField] private LayerMask layerMask;
-    [Tooltip("Enemy's attack reach on the x and y-axes if melee")] [SerializeField] private Vector2 attackReach = new Vector2(0.8f, 0.8f);
+    [Tooltip("Enemy's attack reach on the x and y-axes if melee")] [SerializeField] protected Vector2 attackReach = new Vector2(1f, 1f);
     [Tooltip("Projectile to shoot if ranged")] [SerializeField] private GameObject enemyProjectile;
-    [Tooltip("Projectile speed if ranged")] [SerializeField] protected float projectileSpeed = 0;
+    protected float projectileSpeed = 0;
+    private LayerMask layerMask;
 
     //Hidden fields (private or hidden)
     private bool wasPlayer = false;     //Did we last see the player or are we wandering
@@ -43,8 +42,6 @@ public class BaseEnemyAI : LivingEntity
     private bool attackCD = false;                  //Is the attack on cooldown?
     protected float cooldownTimer = 1;              //Cooldown between attacks in seconds
     private Collider2D playerHit;                   //Collider hit by enemy melee attack (player collider)
-    private Vector3 hitBoxOffset = new Vector3();   //Offset from the enemy of its hitbox 
-    private const float offsetMagnitude = 0.3f;     //Magnitude of the enemy hitbox offset
 
     //Unity Messages
     public void Start()
@@ -53,7 +50,6 @@ public class BaseEnemyAI : LivingEntity
         base.Start();
         rigid = GetComponent<Rigidbody2D>();        //Retrieve our rigid body
         target = manager.player.transform;          //Set player as our target
-        layerMask = LayerMask.GetMask("Player");    //Layer to check for attack hitbox collision
         blinds = LayerMask.GetMask("Level");        //Layer with objects the enemy can't see through
         pickPoint();
     }
@@ -69,7 +65,7 @@ public class BaseEnemyAI : LivingEntity
 
         //Hitbox for enemy attack
         Gizmos.color = Color.red;                           
-        Gizmos.DrawWireCube(this.transform.position + hitBoxOffset, attackReach);
+        Gizmos.DrawWireCube(this.transform.position, attackReach);
     }
     
     private void FixedUpdate()
@@ -80,7 +76,7 @@ public class BaseEnemyAI : LivingEntity
         //If we haven't arrived to our node walk that way
         if (((gotoPoint - (Vector2)this.transform.position).magnitude > threshold))
         {
-            rigid.velocity = (gotoPoint - (Vector2)this.transform.position).normalized * speed; //Head to point
+            rigid.velocity = (gotoPoint - (Vector2)this.transform.position).normalized * moveSpeed; //Head to point
             Rotate(rigid.velocity);
         }
         else 
@@ -210,23 +206,7 @@ public class BaseEnemyAI : LivingEntity
         if(!attackCD)
         {
             interrupt = true;          //Pause roaming/follow AI
-            switch (direction)         //Decide which side to attack on, based on the direction we're facing
-            {
-                case Direction.UP:
-                    hitBoxOffset = new Vector3(0f, offsetMagnitude, 0f);
-                    break;
-                case Direction.DOWN:
-                    hitBoxOffset = new Vector3(0f, -offsetMagnitude, 0f);
-                    break;
-                case Direction.LEFT:
-                    hitBoxOffset = new Vector3(-offsetMagnitude, 0f, 0f);
-                    break;
-                case Direction.RIGHT:
-                    hitBoxOffset = new Vector3(offsetMagnitude, 0f, 0f);
-                    break;
-            }
             Attack();
-            StartCoroutine(AtkCooldownCoroutine()); //Start attack cooldown
             interrupt = false;                      //Resume AI behaviour
         }
     }
@@ -234,14 +214,31 @@ public class BaseEnemyAI : LivingEntity
     //Enemy melee attack
     protected void MeleeAttack()
     {
-        //If player is inside enemy hitbox
-        if (playerHit = Physics2D.OverlapBox(transform.position + hitBoxOffset, attackReach, 0f, layerMask))
+        layerMask = LayerMask.GetMask("Shield");    
+        playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
+        if (playerHit == null)  //If enemy didn't hit shield
         {
-            manager.player.Hurt(attack_damage, this.gameObject.transform); //Deal damage to player
-        }
-        else
+            layerMask = LayerMask.GetMask("Player");
+            playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
+            if (playerHit == null) { } //If we hit nothing
+            else if (manager.player.stamina <= 0 || playerHit.gameObject == manager.player.gameObject) //If enemy hits the player or player is out of stamina
+            {
+                Debug.Log(playerHit);
+                manager.player.Hurt(attack_damage, this.gameObject.transform);  //Deal damage to player
+                StartCoroutine(AtkCooldownCoroutine());                         //Start attack cooldown
+            }
+            else
+            {
+                Debug.Log(playerHit);
+            }
+        }  
+        else if (manager.player.stamina > 0 && playerHit.gameObject == manager.player.shield)     //If enemy hits shield and player has stamina
         {
-            Debug.Log("Melee attack hit nothing");
+            Debug.Log(playerHit);
+            manager.player.Hurt(0, this.gameObject.transform);      //knockback player
+            StartCoroutine(AtkCooldownCoroutine());                 //Start attack cooldown
+            this.Hurt(0, manager.player.transform);                 //Knock enemy back
+            manager.player.stamina -= manager.player.shieldCost;    //Reduce player stamina
         }
     }
 
@@ -251,6 +248,7 @@ public class BaseEnemyAI : LivingEntity
         GameObject projectile = Instantiate(enemyProjectile, transform.position + hitBoxOffset, transform.rotation);    //Create projectile copy
         projectile.GetComponent<Projectile>().damage = this.attack_damage;  //Match the projectile's damage to the enemy's attack
         projectile.GetComponent<Rigidbody2D>().velocity = (target.position - this.transform.position).normalized * projectileSpeed;   //Set projectile velocity
+        StartCoroutine(AtkCooldownCoroutine());                 //Start attack cooldown
     }
 
     IEnumerator AtkCooldownCoroutine()
@@ -268,7 +266,7 @@ public class BaseEnemyAI : LivingEntity
     protected override void Death()
     {
         base.Death();
-        StartCoroutine(DeathCoroutine(2f));    //Wait 2 seconds before removing corpse
+        StartCoroutine(DeathCoroutine(1f));    //Wait 1 second before removing corpse
     }
 
     private IEnumerator DeathCoroutine(float seconds)

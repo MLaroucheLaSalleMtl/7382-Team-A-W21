@@ -5,22 +5,49 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public int damage = 0;  //How much damage the projectile deals if it hits a player/enemy
-    
-    private void OnTriggerEnter2D(Collider2D hit)
+    private Rigidbody2D rigid;
+    private LivingEntity entity;
+    private Vector2 startVelocity;  //Velocity when first fired
+    private GameManager manager;
+
+    private void Start()
     {
+        manager = GameManager.instance;
+        rigid = this.GetComponent<Rigidbody2D>();
+        startVelocity = rigid.velocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        //If we hit the player's shield
+        if(collision.collider.name == "Shield")
+        {
+            this.gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
+            rigid.velocity = (Vector2.Reflect(startVelocity, collision.GetContact(0).normal));  //Reflect projectile off shield
+        }
         //If we hit the player or an enemy
-        LivingEntity entity = hit.GetComponent<LivingEntity>(); 
-        if (entity)
+        else if (entity = collision.collider.GetComponent<LivingEntity>())
         {
             entity.Hurt(damage, this.gameObject.transform);
+            Destroy(gameObject);    //Destroy the projectile
         }
-
-        //If player reflects an enemy projectile (Hits shield)
-        if(false)           
+        //If we hit anything else
+        else
         {
-            gameObject.layer = 10;
+            Destroy(gameObject);    //Destroy the projectile
         }
-
-        Destroy(gameObject);    //Destroy the projectile when it hits something
+    }
+    private void OnDestroy()
+    {
+        CheckSplit();
+    }
+    //check if projectile is the split one
+    private void CheckSplit() 
+    {
+        Debug.Log("running");
+        if (gameObject.CompareTag("Split")) 
+        {
+            manager.player.GetComponent<Player>().Mystery_Split();
+        }
     }
 }

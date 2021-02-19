@@ -134,8 +134,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baea6864b8dcee7479e4b49a420ef09a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  body: {fileID: 0}
   direction: 0
-  attack_damage: 0
+  gotoPoint: {x: 0, y: 0}
   target: {fileID: 0}
   blinds:
     serializedVersion: 2
@@ -150,7 +151,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   attackReach: {x: 1, y: 1}
-  enemyProjectile: {fileID: 0}
+  enemyProjectile: {fileID: 6258319988817248224, guid: 86773e3dc678cf0429701534c61726c6, type: 3}
   projectileSpeed: 0
-  gotoPoint: {x: 0, y: 0}
   rigid: {fileID: 0}

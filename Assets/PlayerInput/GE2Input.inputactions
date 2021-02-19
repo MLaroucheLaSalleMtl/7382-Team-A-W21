@@ -44,6 +44,38 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Tap"
+                },
+                {
+                    "name": "Defend",
+                    "type": "Button",
+                    "id": "b5733ce1-ac27-4ba2-bdd9-1c2175b1e4e3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold"
+                },
+                {
+                    "name": "Secondary Attack",
+                    "type": "Button",
+                    "id": "e1979051-5edd-4cf7-8136-54db20240f80",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Weapon Swap",
+                    "type": "Button",
+                    "id": "5314531b-835e-46f6-b871-a359d7966fb9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Tap"
+                },
+                {
+                    "name": "PickUp",
+                    "type": "Button",
+                    "id": "aee79455-8f93-4d2e-a851-3cd3ea8fcb90",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Tap"
                 }
             ],
             "bindings": [
@@ -173,7 +205,7 @@
                     "id": "3ea4d645-4504-4529-b061-ab81934c3752",
                     "path": "<Joystick>/stick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "groups": "Joystick",
                     "action": "Move",
                     "isComposite": false,
@@ -226,7 +258,7 @@
                 {
                     "name": "",
                     "id": "8c3243df-9174-4265-afe0-ffd48a7e4bfb",
-                    "path": "<Gamepad>/rightTrigger",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
@@ -270,11 +302,99 @@
                 {
                     "name": "",
                     "id": "24cf76aa-854e-45e8-810f-d0c20c5a5900",
-                    "path": "<Gamepad>/buttonSouth",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4d8302be-625c-4294-994d-b5e95998ef6d",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Defend",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2cea9f71-7b6a-4d3c-adf6-60dff6ebd9e6",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Defend",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6b5db04c-a21c-4622-a81a-ae490f7a1956",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Secondary Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ceb61aeb-999a-41af-afb9-72d9928ca1a3",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Secondary Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "1D Axis",
+                    "id": "f693b90a-6237-490d-b1f2-34493fd08082",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Weapon Swap",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "a37d958a-10f5-4a06-aac7-575fcfb6e8d4",
+                    "path": "<Keyboard>/numpad1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Weapon Swap",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "93fd31bd-e0d1-4573-9b06-46b8b73c5de5",
+                    "path": "<Keyboard>/numpad3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Weapon Swap",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "3f810bea-e0f1-4c6a-b1cb-0b91d64c2a88",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "PickUp",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

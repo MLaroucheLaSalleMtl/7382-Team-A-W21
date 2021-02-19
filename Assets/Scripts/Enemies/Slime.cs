@@ -8,7 +8,7 @@ public class Slime : BaseEnemyAI
     void Start()
     {
         this.approach = 0f;     //Slime is a melee enemy
-        this.speed = 4f;
+        this.moveSpeed = 4f;
         this.attack_damage = 3;
         base.Start();
     }
