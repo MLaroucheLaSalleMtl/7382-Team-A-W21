@@ -8,7 +8,7 @@ public class Projectile : MonoBehaviour
     private Rigidbody2D rigid;
     private LivingEntity entity;
     private Vector2 startVelocity;  //Velocity when first fired
-    private GameManager manager;
+    protected GameManager manager;
 
     private void Start()
     {
@@ -17,10 +17,12 @@ public class Projectile : MonoBehaviour
         startVelocity = rigid.velocity;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
+        //check if it needs to split first
+        CheckSplit();
         //If we hit the player's shield
-        if(collision.collider.name == "Shield")
+        if (collision.collider.name == "Shield")
         {
             this.gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
             rigid.velocity = (Vector2.Reflect(startVelocity, collision.GetContact(0).normal));  //Reflect projectile off shield
@@ -37,15 +39,10 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);    //Destroy the projectile
         }
     }
-    private void OnDestroy()
-    {
-        CheckSplit();
-    }
     //check if projectile is the split one
-    private void CheckSplit() 
+    private void CheckSplit()
     {
-        Debug.Log("running");
-        if (gameObject.CompareTag("Split")) 
+        if (gameObject.CompareTag("Split"))
         {
             manager.player.GetComponent<Player>().Mystery_Split();
         }

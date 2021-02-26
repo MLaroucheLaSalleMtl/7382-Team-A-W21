@@ -134,8 +134,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb536f5372bd63d4387f24e2a672c2b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 10
+  body: {fileID: 0}
   direction: 270
-  attack_damage: 0
+  gotoPoint: {x: 0, y: 0}
   target: {fileID: 0}
   blinds:
     serializedVersion: 2
@@ -145,12 +147,6 @@ MonoBehaviour:
   range: 20
   wanderRange: 10
   approach: 7
-  speed: 3
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  attackReach: {x: 0.8, y: 0.8}
+  attackReach: {x: 1.5, y: 1.5}
   enemyProjectile: {fileID: 0}
-  projectileSpeed: 0
-  gotoPoint: {x: 0, y: 0}
   rigid: {fileID: 0}

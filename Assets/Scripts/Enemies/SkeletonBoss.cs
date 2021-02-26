@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class SkeletonBoss : BaseEnemyAI
 {
+    private const int MAX_HP = 20;
+
     // Start is called before the first frame update
     void Start()
     {
-        this.hp = 20;
+        this.hp = MAX_HP;
         this.approach = 6f;             //Ghost is a ranged enemy
         this.moveSpeed = 3f;
         this.attack_damage = 4;
@@ -21,9 +23,9 @@ public class SkeletonBoss : BaseEnemyAI
     {
         RangedAttack();
     }
-    protected override void Death()
+    public override void Hurt(int damage, Transform hitting)
     {
-        manager.bossesSlain++;
-        base.Death();
+        base.Hurt(damage, hitting);
+        manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, MAX_HP); //UPDATE UI
     }
 }

@@ -36,12 +36,11 @@ public class Player : LivingEntity
     [Tooltip("How long between each point regenerated")] public float regenSpeed = 1f;
 
     [Header("Other")]
-    [SerializeField] private GameObject Canvas;
+    [SerializeField] public Canvas canvas;
     [SerializeField] private Vector2 interact_distance = new Vector2();
 
     //Internals
     private float sinceLastDrain = 3f;
-    private UIBehaviour UIScript;
     private bool interact = false;
     private bool attacking; // could probably use delegates and stuff
     private const float timer = 0.5f;
@@ -49,12 +48,18 @@ public class Player : LivingEntity
     private bool dashing;
     private ContactFilter2D filter2D;
 
+    public UIBehaviour UIScript;
+
     //Defend variables
     public GameObject shield;
+    public Sprite[] shieldSprites = new Sprite[4];
     private float originalSpeed;
 
+    //Sword box
+    public GameObject sword;
+
     //Secondary Weapon
-    private int weaponLock = 0;
+    public int weaponLock = 0;
     private WeaponSlot slot;
     private bool sAttack = false;
     private bool attack_cancel = false; //primary used for bow (when charging it will not let player attack)
@@ -62,7 +67,7 @@ public class Player : LivingEntity
     //Bomb
     [SerializeField] private GameObject prefab_bomb;
     [SerializeField] private Transform bomb_spawn;
-    [SerializeField] private const float tossRange = 5f;
+    public const float tossRange = 5f;
     private GameObject clone_throw; // used for both bombs and throwable stuff(pots rocks etc...)
     public delegate void SecondaryAttack();
     private SecondaryAttack secondaryAttack;
@@ -77,8 +82,13 @@ public class Player : LivingEntity
     //MysteryItem
     [SerializeField] private GameObject prefab_split;
     [SerializeField] private int mysteryDamage; // changeable in editor
+    private Vector2 chacheCloneShot;
     private GameObject clone_shot;
     private const float mysterySpeed = 20f;
+
+    [Header("Effects")]
+    [SerializeField] private ParticleSystem stunnedSparkles;
+    [SerializeField] private ParticleSystem dashPuffs;
     //----------debug----------//
 
     //----------Input System----------//
@@ -89,8 +99,7 @@ public class Player : LivingEntity
     }
     public void OnDash(InputAction.CallbackContext context)
     {
-
-        this.dashing = context.performed;
+        if (context.started) this.dashing = true;
     }
     public void OnInteract(InputAction.CallbackContext context) 
     {
@@ -102,7 +111,7 @@ public class Player : LivingEntity
     }
     public void OnDefend(InputAction.CallbackContext context)
     {
-        if (slot > 0 && clone_throw == null || clone_throw.transform.parent == null && attack_cooldown == null)
+        if (slot > 0 && (clone_throw == null || clone_throw.transform.parent == null) && attack_cooldown == null)
         {
             if (context.started)
                 RaiseShield();
@@ -184,7 +193,7 @@ public class Player : LivingEntity
         if (sinceLastDrain >= regenTime && stamina < maxStamina)
         {
             stamina++;
-            UIScript.SetBar(false, stamina, maxStamina);  //Update UI
+            UIScript.SetBar(UIBars.Stamina, stamina, maxStamina);  //Update UI
         }
     }
 
@@ -195,7 +204,7 @@ public class Player : LivingEntity
         this.body = GetComponent<Rigidbody2D>();
         //Set Hp, animation and other things from Living_Entity...
         this.anim = GetComponent<Animator>();
-        UIScript = Canvas.GetComponent<UIBehaviour>();
+        UIScript = canvas.GetComponent<UIBehaviour>();
         filter2D = new ContactFilter2D();
         filter2D.layerMask = levelMask;
         filter2D.useLayerMask = true;
@@ -210,8 +219,30 @@ public class Player : LivingEntity
         hitBoxOffset = CalculateOffset(this.offsetMagnitude);
         shield.transform.localPosition = hitBoxOffset;
         moveSpeed = moveSpeed / 2;
+        //Handle visuals
+        SpriteRenderer renderer = shield.GetComponent<SpriteRenderer>();
+        if (renderer != null)
+        {
+            renderer.sortingOrder = (GetComponent<Renderer>().sortingOrder + 1);
+            switch (direction)
+            {
+                case Direction.UP:
+                    renderer.sprite = shieldSprites[3];
+                    renderer.sortingOrder = (GetComponent<Renderer>().sortingOrder - 1);
+                    break;
+                case Direction.RIGHT:
+                    renderer.sprite = shieldSprites[2];
+                    break;
+                default:
+                case Direction.DOWN:
+                    renderer.sprite = shieldSprites[0];
+                    break;
+                case Direction.LEFT:
+                    renderer.sprite = shieldSprites[1];
+                    break;
+            }
+        }
     }
-
     void LowerShield()
     {
         shield.SetActive(false);
@@ -244,7 +275,7 @@ public class Player : LivingEntity
             else
             {
                 stamina -= dashCost;
-                UIScript.SetBar(false, stamina, maxStamina);  //Update UI
+                UIScript.SetBar(UIBars.Stamina, stamina, maxStamina);  //Update UI
                 StartCoroutine(Dash(dashTime));
             }
         }
@@ -288,10 +319,12 @@ public class Player : LivingEntity
     //----------Interaction Add----------//
     public void InteractionAdd() 
     {
+        Debug.Log("Add item");
         weaponLock++;
         slot = (WeaponSlot) weaponLock;
+        UIScript.UpdateIcons(weaponLock);
     }
-        
+
     //----------Bomb----------//
     public void Spawn_Bomb() 
     {
@@ -301,10 +334,8 @@ public class Player : LivingEntity
     }
     public void Throw_Bomb() 
     {
-        Vector2 end;
         //create distance between bomb spawn and location
-        SetPosition(out end, out _, tossRange);
-        
+        SetPosition(out Vector2 end, out _, tossRange);
         clone_throw.transform.parent = null;
         StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn, end));
         secondaryAttack = null;
@@ -394,17 +425,18 @@ public class Player : LivingEntity
             secondaryAttack = Mystery_Split;
             clone_shot.GetComponent<Projectile>().damage = mysteryDamage;
             sAttack = false;
+            chacheCloneShot = clone_shot.GetComponent<Rigidbody2D>().velocity;
         }
     }
     public void Mystery_Split() 
     {
-        Vector2 orientation = clone_shot.GetComponent<Rigidbody2D>().velocity;
+        Vector2 orientation = chacheCloneShot;
+        Vector2 offset = clone_shot.transform.position;
         clone_shot.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        //check orientation left right else is up down
         Quaternion rotation = clone_shot.transform.rotation;
         GameObject[] clone_clone_prefab = new GameObject[2];
-        clone_clone_prefab[0] = Instantiate(clone_shot, (Vector2)clone_shot.transform.position, rotation * Quaternion.Euler(0f,0f,90f));
-        clone_clone_prefab[1] = Instantiate(clone_shot, (Vector2)clone_shot.transform.position, rotation * Quaternion.Euler(0f, 0f, -90f));
+        clone_clone_prefab[0] = Instantiate(clone_shot, offset, rotation * Quaternion.Euler(0f,0f,-90f));
+        clone_clone_prefab[1] = Instantiate(clone_shot, offset, rotation * Quaternion.Euler(0f, 0f, 90f));
         clone_clone_prefab[0].tag = "Untagged";
         clone_clone_prefab[1].tag = "Untagged";
         foreach (GameObject c in clone_clone_prefab)
@@ -416,6 +448,10 @@ public class Player : LivingEntity
         {
             clone_clone_prefab[0].GetComponent<Rigidbody2D>().velocity = new Vector2(0f,mysterySpeed/2);
             clone_clone_prefab[1].GetComponent<Rigidbody2D>().velocity = new Vector2(0f, -mysterySpeed/2);
+
+            Debug.Log(clone_clone_prefab[0].GetComponent<Rigidbody2D>().velocity);
+            Debug.Log(clone_clone_prefab[1].GetComponent<Rigidbody2D>().velocity);
+
         }
         else 
         {
@@ -431,10 +467,11 @@ public class Player : LivingEntity
     {
         if (!this.invincible && this.hp > 0 && !dashing) 
         {
+            anim.SetTrigger("Hurt");
             base.Hurt(damage, hitting);
             if (damage > 0)
                 StartCoroutine(invFrames(1));
-            UIScript.SetBar(true, this.hp, maxHealth);
+            UIScript.SetBar(UIBars.Health, this.hp, maxHealth);
         }
     }
     public override void Attack()
@@ -444,6 +481,10 @@ public class Player : LivingEntity
             Throw_Bomb();
         else if (!shield.activeSelf)
         {
+            Quaternion quaternion;
+            SetPosition(out _, out quaternion, 1);
+            quaternion.eulerAngles = new Vector3(0, 0, quaternion.eulerAngles.z - 90);
+            sword.transform.rotation = quaternion;
             base.Attack();
             if (attack_cooldown == null)
             {
@@ -455,9 +496,10 @@ public class Player : LivingEntity
     }
     protected override void Death()
     {
-        base.Death();
         Debug.Log("Game Over");
-        //Show Game Over screen
+        anim.SetTrigger("Die");
+        this.gameObject.GetComponent<Player>().enabled = false; //Disable player movement
+        manager.GameOver();     //Show Game Over screen + menu
     }
     //----------Coroutines----------//
     private IEnumerator Attack_Cooldown() 
@@ -477,7 +519,7 @@ public class Player : LivingEntity
         
         interrupt = true;
         invincible = true;
-
+        dashPuffs.Play();
         sinceLastDrain = 0f;
         Vector2 dashDir = gotoPoint.normalized; //So that controls don't affect the dash once it's started
         float count = 0;
@@ -509,7 +551,9 @@ public class Player : LivingEntity
                     //Check if angle is within the stun range
                     if (Mathf.Abs(Vector2.Angle(dashDir, Point.normal) - 180) <= wallAngleThreshold/2)
                     {
-                        //HERE IS WHERE YOU WOULD CALL GETTING
+                        dashPuffs.Stop();
+                        stunnedSparkles.Play();
+                        anim.SetBool("Stunned", true);
                         dashTime = stunTime;
                         count = 0f;
                         hasHitWall = true;
@@ -533,7 +577,10 @@ public class Player : LivingEntity
         }
 
         //Everything returns to normal
+        anim.SetBool("Stunned", false);
+        dashPuffs.Stop();
         base.myRenderer.enabled = true;
+        stunnedSparkles.Stop();
         invincible = false;
         interrupt = false;
         dashing = false;

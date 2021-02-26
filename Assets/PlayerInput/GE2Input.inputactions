@@ -43,7 +43,7 @@
                     "id": "9593b87b-cd47-445a-85d2-e9eddf5ce23f",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Tap"
+                    "interactions": ""
                 },
                 {
                     "name": "Defend",

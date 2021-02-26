@@ -6,6 +6,7 @@ public class SlimeBoss : BaseEnemyAI
 {
 
     [SerializeField] private GameObject minion;
+    [SerializeField] private GameObject canvas;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,12 +31,14 @@ public class SlimeBoss : BaseEnemyAI
                 this.Death();
             else
             {
+
                 StartCoroutine(invFrames(2));
                 GameObject newBlob = Instantiate(minion, this.transform.position, new Quaternion(), null);
                 LivingEntity ent = newBlob.GetComponent<LivingEntity>();
+                ent.Start();
                 ent.StartCoroutine(ent.invFrames(1));
                 ent.hp = 1;
-                ent.Start();
+                canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, 6); //UPDATE UI
             }
             
         }

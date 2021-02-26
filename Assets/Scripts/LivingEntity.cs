@@ -113,7 +113,7 @@ public class LivingEntity : MonoBehaviour
     protected virtual void Death() 
     {
         this.interrupt = true;                  //Disable movement
-        //Play death animation
+        //this.anim.SetBool("Death", true);
     }
 
     protected Vector3 CalculateOffset(float offsetMagnitude)

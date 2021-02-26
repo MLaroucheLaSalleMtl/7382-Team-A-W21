@@ -8,12 +8,17 @@ public class Interactable : MonoBehaviour
     //this interaction is solely for unlocking items if you want to use pop up and sign inherit and overwrite it
     [SerializeField] private Vector3 size = new Vector3(2f,2f,2f);
     private GameManager manager;
-    CapsuleCollider2D open;
+    private CapsuleCollider2D open;
+    protected Animator anim;
+
+    private void Awake()
+    {
+        open = GetComponent<CapsuleCollider2D>();
+        anim = GetComponent<Animator>();
+    }
     private void Start()
     {
         manager = GameManager.instance;
-        open = GetComponent<CapsuleCollider2D>();
-
     }
     private void OnDrawGizmos()
     {
@@ -22,11 +27,16 @@ public class Interactable : MonoBehaviour
     }
     public virtual void Interaction() 
     {
+        //If this item is a chest
         if (gameObject.CompareTag("Chest"))
+        {
             manager.player.InteractionAdd();
-        //play animation?
-
-        //also note remove colliders thx
-        open.enabled = false;
+            anim.SetTrigger("Open");
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            manager.ItemFound();
+        }
+        //If this item is a sign post
+        else
+            manager.ReadSign();
     }
 }

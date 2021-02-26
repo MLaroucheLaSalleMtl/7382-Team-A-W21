@@ -6,6 +6,8 @@ public class Bombs : Throwable
 {
     //needs 2 colliders for player to walk into and one to trigger if it hits an enemy
     [SerializeField] protected const float timer = 5f;
+    [SerializeField] protected LayerMask mask;
+    [SerializeField] private GameObject puff;
     private void Start()
     {
         Invoke("Hit", timer);
@@ -21,7 +23,7 @@ public class Bombs : Throwable
             {
                 c.gameObject.GetComponent<LivingEntity>().Hurt(this.damage, gameObject.transform);
                 //check if player is holding this bomb
-                if (c.gameObject.name == "Player") 
+                if (c.gameObject.name == "Player")
                 {
                     Debug.Log("hitting player");
                     //check if he's holding the bomb by seeing if this game object's parent is not null
@@ -32,8 +34,9 @@ public class Bombs : Throwable
             else if (c.CompareTag("Breakable"))
                 Destroy(c.gameObject, 1f);
         }
-        //check if player is holding the bomb
         //play animation and then destroy this object
+        puff.GetComponent<ParticleSystem>().Play();
+        puff.transform.parent = null;
         gameObject.SetActive(false);
         Destroy(gameObject, timer);
     }
@@ -43,12 +46,11 @@ public class Bombs : Throwable
         if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy") && thrown && !destination_reached)
         {
             hit = true;
-            CancelInvoke("Boom");
+            CancelInvoke("Hit");
             Hit();
         }
     }
     //on contact
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

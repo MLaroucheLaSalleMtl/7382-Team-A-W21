@@ -21,7 +21,7 @@ public class BaseEnemyAI : LivingEntity
     [Header("AI Behaviour")]
     [Tooltip("What am I looking for?")] public Transform target;
     [Tooltip("What can we NOT see through?")] [SerializeField] private LayerMask blinds;
-    [Tooltip("How close should I get to my destination before I say I've arrived? [Do not change if you do not understand]")] [SerializeField] protected float threshold = 1f;
+    [Tooltip("How close should I get to my destination before I say I've arrived? [Do not change if you do not understand]")] [SerializeField] protected float threshold = 0.8f;
     [Header("AI Stats")]
     [Tooltip("How wide is my field of view? [Should keep above 90 if you don't want blind spots]")] [Range(2, 360)] public float fov = 120;
     [Tooltip("How far can I see?")] [Range(1, 100)] public float range = 20;

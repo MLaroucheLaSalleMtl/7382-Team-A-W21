@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Breakable
   - Chest
+  - Split
   layers:
   - Default
   - TransparentFX
