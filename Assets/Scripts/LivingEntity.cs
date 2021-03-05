@@ -40,6 +40,7 @@ public class LivingEntity : MonoBehaviour
         this.manager = GameManager.instance;
         this.body = GetComponent<Rigidbody2D>();
         this.myRenderer = GetComponent<Renderer>();
+        this.anim = GetComponent<Animator>();
     }
     //Rotate the direction enumerator based on a Vector2
     protected void Rotate(Vector2 dir)
@@ -71,7 +72,7 @@ public class LivingEntity : MonoBehaviour
     }
 
 
-    //defult melee attack for both player and monster (replaced with animations)
+    //defult melee attack for player (replaced with animations)
     public virtual void Attack() 
     {
         //Player's attack is made together with the animation
@@ -113,7 +114,6 @@ public class LivingEntity : MonoBehaviour
     protected virtual void Death() 
     {
         this.interrupt = true;                  //Disable movement
-        //this.anim.SetBool("Death", true);
     }
 
     protected Vector3 CalculateOffset(float offsetMagnitude)

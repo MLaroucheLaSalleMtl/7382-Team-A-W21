@@ -43,6 +43,11 @@ public class BaseEnemyAI : LivingEntity
     protected float cooldownTimer = 1;              //Cooldown between attacks in seconds
     private Collider2D playerHit;                   //Collider hit by enemy melee attack (player collider)
 
+    //Internals
+    private Vector2 lastPoint;
+    private float timeSinceMove = 0;
+
+
     //Unity Messages
     public void Start()
     {
@@ -50,7 +55,7 @@ public class BaseEnemyAI : LivingEntity
         base.Start();
         rigid = GetComponent<Rigidbody2D>();        //Retrieve our rigid body
         target = manager.player.transform;          //Set player as our target
-        blinds = LayerMask.GetMask("Level");        //Layer with objects the enemy can't see through
+        //blinds = LayerMask.GetMask("Level");        //Layer with objects the enemy can't see through
         pickPoint();
     }
 
@@ -109,7 +114,31 @@ public class BaseEnemyAI : LivingEntity
                 }
             }
         }
+        //Update enemy's walk/idle animation
+        if (this.rigid.velocity.magnitude > 0.1)
+        {
+            this.anim.SetFloat("Hor", this.rigid.velocity.x);
+            this.anim.SetFloat("Ver", this.rigid.velocity.y);
+            this.anim.SetBool("Mov", true);
+        }
+        else
+            this.anim.SetBool("Mov", false);
 
+        //Fix any form of stubborness
+        if (lastPoint == (Vector2)this.transform.position)
+        {
+            timeSinceMove += Time.fixedDeltaTime;
+            if(timeSinceMove > 1)
+            {
+                pickPoint();
+                Debug.Log("Got Stuck!");
+            }
+        }
+        else
+        {
+            lastPoint = (Vector2)this.transform.position;
+            timeSinceMove = 0f;
+        }
     }
 
     void Update()
@@ -266,6 +295,7 @@ public class BaseEnemyAI : LivingEntity
     protected override void Death()
     {
         base.Death();
+        anim.SetTrigger("Death");
         StartCoroutine(DeathCoroutine(1f));    //Wait 1 second before removing corpse
     }
 

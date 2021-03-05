@@ -32,8 +32,8 @@ public class Player : LivingEntity
     public int stamina = 20;
     public int dashCost = 5;
     public int shieldCost = 5;
-    [Tooltip("How long before regend")] public float regenTime = 3f;
-    [Tooltip("How long between each point regenerated")] public float regenSpeed = 1f;
+    [Tooltip("How long before regend")] public float regenTime = 1f;
+    [Tooltip("How long between each point regenerated")] public float regenSpeed = 0.5f;
 
     [Header("Other")]
     [SerializeField] public Canvas canvas;
@@ -124,10 +124,13 @@ public class Player : LivingEntity
         switch (slot) 
         {
             case WeaponSlot.Bow:
-                if (context.started)
-                    ChargeBow();
-                if (context.canceled)
-                    ShootBow();
+                if (!shield.activeSelf && attack_cooldown == null)
+                {
+                    if (context.started)
+                        ChargeBow();
+                    if (context.canceled)
+                        ShootBow();
+                }
                 break;
             case WeaponSlot.Bomb:
             case WeaponSlot.Mystery:
@@ -143,10 +146,10 @@ public class Player : LivingEntity
     public void OnWeaponSwap(InputAction.CallbackContext context) 
     {
         float input = context.ReadValue<float>();
-        if (weaponLock > 0)
-            if (input < 0)
+        if (weaponLock > 0 && !attack_cancel && bomb_spawn.childCount < 1)
+            if (input > 0)
                 slot = (slot > WeaponSlot.Bomb) ? --slot : (WeaponSlot)weaponLock;
-            else if (input > 0)
+            else if (input < 0)
                 slot = ((int)slot < weaponLock) ? ++slot : WeaponSlot.Bomb;
         UIScript.UpdateSlots(slot);
     }
@@ -163,6 +166,7 @@ public class Player : LivingEntity
         Collider2D hit;
         if (hit = Physics2D.OverlapBox(orientation, interact_distance, 0f, playerMask))
         {
+            //add something here to stop the player so they don't move while interacting with objects?
             // other class goes here...
             hit.GetComponent<Interactable>().Interaction();
         }
@@ -203,7 +207,7 @@ public class Player : LivingEntity
         base.Start();
         this.body = GetComponent<Rigidbody2D>();
         //Set Hp, animation and other things from Living_Entity...
-        this.anim = GetComponent<Animator>();
+        //Set Hp, animation and other things from Living_Entity...
         UIScript = canvas.GetComponent<UIBehaviour>();
         filter2D = new ContactFilter2D();
         filter2D.layerMask = levelMask;
@@ -319,7 +323,6 @@ public class Player : LivingEntity
     //----------Interaction Add----------//
     public void InteractionAdd() 
     {
-        Debug.Log("Add item");
         weaponLock++;
         slot = (WeaponSlot) weaponLock;
         UIScript.UpdateIcons(weaponLock);
@@ -350,7 +353,6 @@ public class Player : LivingEntity
             Vector2 orientation;
             Vector2 size = new Vector2(offsetMagnitude, offsetMagnitude);
             SetPosition(out orientation, out _, offsetMagnitude);
-            Debug.Log(orientation);
             Collider2D hit;
             if (hit = Physics2D.OverlapBox(orientation, size, 0f, pickMask))
             {
@@ -402,7 +404,6 @@ public class Player : LivingEntity
         Quaternion rotation;
         SetPosition(out orientation, out rotation, offsetMagnitude);
         //add velocity
-        Debug.Log(bowSpeed);
         GameObject arrow = Instantiate(prefab_arrow, orientation, rotation, null);
         arrow.GetComponent<Projectile>().damage = bowDamage;
         arrow.GetComponent<Rigidbody2D>().velocity = (orientation-(Vector2)transform.position) * bowSpeed * 8f;
@@ -496,9 +497,9 @@ public class Player : LivingEntity
     }
     protected override void Death()
     {
-        Debug.Log("Game Over");
+        this.gameObject.GetComponent<Player>().enabled = false;     //Disable player movement
+        this.gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         anim.SetTrigger("Die");
-        this.gameObject.GetComponent<Player>().enabled = false; //Disable player movement
         manager.GameOver();     //Show Game Over screen + menu
     }
     //----------Coroutines----------//

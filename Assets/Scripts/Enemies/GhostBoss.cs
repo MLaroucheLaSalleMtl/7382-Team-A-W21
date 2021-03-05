@@ -7,27 +7,31 @@ public class GhostBoss : LivingEntity
     private delegate void Decision();
     private Decision decision;
     //----------Other Variables----------//
+    //[SerializeField] private GameObject canvas;
     private bool ready = true;
     private bool moving;
+    private const int HP_MAX = 10; //change if necesary...
     //----------Variable----------//
     [Header("Direction")]
     [SerializeField] private List<Transform> node;
     [SerializeField] private Transform previous_node;
-[Space]
+    [Space]
     [Header("Projectile")]
     [SerializeField] private int bulletnum = 1;
     private const float bulletSpeed = 5f;
     private int index;
     [SerializeField] private List<float> angles;
-    [SerializeField] private float offset; // used for reverse rotation
+    //[SerializeField] private float offset; // used for reverse rotation didnt use keeping incase...
     //----------Movement Selection----------//
     //makes sure the node found is not the same one
-    private void FindNode() 
+    private Transform FindNode() 
     {
+        Transform Destination = node[Random.Range(0, node.Count)];
         if (previous_node != null) 
         {
-
+            return (previous_node == Destination) ? FindNode() : (previous_node = Destination);
         }
+        return Destination;
     }
     //----------Attack Patern----------//
     public void StandardPattern(int numBullet,ref int currentangle_Index, ref List<float> currentAngles, float rotationSpeed, float speed, out GameObject[] shots) 
@@ -52,7 +56,7 @@ public class GhostBoss : LivingEntity
             currentAngles[currentangle_Index] %= 360f;
         index++;
         if (currentAngles.Count < currentangle_Index + 1)
-            angles.Add(0f);
+            currentAngles.Add(0f);
     }
     public void Action() 
     {
@@ -66,26 +70,44 @@ public class GhostBoss : LivingEntity
             moving = false;
         Attack();
     }
-    //normal one attack bullet
+    //normal attack bullet
     public void TargetAttack() 
     {
-        //Vector2 second_shot = new Vector2();
-        //Vector2 third_shot = new Vector2();
-        Vector2 middle_shot = (manager.player.transform.position - transform.position).normalized * bulletSpeed;
-        GameObject temp = ObjectPooling.instance.GetBullet();
+        Vector2 middle_shot = (manager.player.transform.position - transform.position).normalized;
+        Vector2 second_shot = Rotate(45f, middle_shot);
+        Vector2 third_shot = Rotate(-45f, middle_shot);
+        
+        Shot(ObjectPooling.instance.GetBullet(),middle_shot,bulletSpeed);
+        Shot(ObjectPooling.instance.GetBullet(), second_shot, bulletSpeed);
+        Shot(ObjectPooling.instance.GetBullet(), third_shot, bulletSpeed);
+    }
+    public Vector2 Rotate(float angle, Vector2 vector) 
+    {
+        Vector2 shot = new Vector2
+        {
+            x = vector.x * Mathf.Cos((angle * Mathf.PI) / 180f) - vector.y * Mathf.Sin((angle * Mathf.PI) / 180f),
+            y = vector.x * Mathf.Sin((angle * Mathf.PI) / 180f) + vector.y * Mathf.Cos((angle * Mathf.PI) / 180f)
+        };
+        return shot;
+    }
+    public void RefreshAngles() 
+    {
+        for (int i = 0; i < angles.Count; i++)
+            angles[i] = 0f;
+    }
+    public void Shot(GameObject temp, Vector2 dir, float speed) 
+    {
         temp.SetActive(true);
         temp.transform.position = transform.position;
-        temp.GetComponent<Rigidbody2D>().velocity = middle_shot;
-
-
+        temp.GetComponent<Rigidbody2D>().velocity = dir * speed;
     }
     //----------Paterns that boss uses when standing still for x seconds----------//
     public void StaticPattern_Flower() 
     {
         GameObject[] shot_volley;
-        StandardPattern(bulletnum, ref index, ref angles, 2, bulletSpeed, out shot_volley);
+        StandardPattern(bulletnum, ref index, ref angles, 5, bulletSpeed, out shot_volley);
         StopGimmick(shot_volley);
-        StandardPattern(bulletnum, ref index, ref angles, -2, bulletSpeed, out shot_volley);
+        StandardPattern(bulletnum, ref index, ref angles, -5, bulletSpeed, out shot_volley);
         StopGimmick(shot_volley);
         StandardPattern(2, ref index, ref angles, 10, bulletSpeed + (bulletSpeed / 4), out _);
         StandardPattern(2, ref index, ref angles, -10, bulletSpeed + (bulletSpeed / 4), out _);
@@ -135,6 +157,8 @@ public class GhostBoss : LivingEntity
     {
         if(hitting.gameObject.GetComponent<Projectile>() != null)
             base.Hurt(damage, hitting);
+        this.body.velocity = Vector2.zero;
+        manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, HP_MAX); //UPDATE UI
     }
     protected override void Death()
     {
@@ -146,28 +170,32 @@ public class GhostBoss : LivingEntity
     {
         Vector2 startpoint = transform.position;
         float currentLocal = 0f;
-        previous_node = node[Random.Range(0, node.Count)];
-        this.gotoPoint = previous_node.position;
+        //gotoPoint = node[Random.Range(0, node.Count)].position;
+        gotoPoint = FindNode().position;
         while (currentLocal <= 1 && gameObject.activeSelf) 
         {
             transform.position = Vector2.Lerp(startpoint, gotoPoint, currentLocal);
             currentLocal += 0.01f;
             yield return new WaitForSeconds(0.025f);
         }
-        //add attack here
+        Debug.Log("Destination Reached");
         yield return null;
     }
     private IEnumerator Attacking() 
     {
         float count = 0;
-        while (count < 20) 
+        float timer = (decision != TargetAttack) ? 40f : 20f;
+        float delay = (decision == StaticPatern_CircleTrack) ? 0.25f : 0.5f;
+        //add more to condition if there's more attack
+        while (count < timer) 
         {
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(delay);
             decision();
             count++;
         }
         decision = null;
         ready = true;
+        RefreshAngles();
         yield return null;
     }
     //----------Built In Functions----------//
@@ -176,6 +204,11 @@ public class GhostBoss : LivingEntity
         angles = new List<float>();
         angles.Add(0f);
         base.Start();
+        this.hp = HP_MAX;
+        
+
+        //Debugging for each shots
+        //InvokeRepeating("StaticPatern_CircleTrack", 0.5f, betweenShot);
     }
     public void FixedUpdate()
     {

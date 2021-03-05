@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7124845767733433466}
   - component: {fileID: 7124845767733433460}
   - component: {fileID: 7124845767733433467}
+  - component: {fileID: -9155428617187073828}
   m_Layer: 9
   m_Name: Spider
   m_TagString: Untagged
@@ -134,6 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baea6864b8dcee7479e4b49a420ef09a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 10
   body: {fileID: 0}
   direction: 0
   gotoPoint: {x: 0, y: 0}
@@ -146,11 +148,25 @@ MonoBehaviour:
   range: 20
   wanderRange: 10
   approach: 0.5
-  speed: 3
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 256
   attackReach: {x: 1, y: 1}
   enemyProjectile: {fileID: 6258319988817248224, guid: 86773e3dc678cf0429701534c61726c6, type: 3}
-  projectileSpeed: 0
   rigid: {fileID: 0}
+--- !u!95 &-9155428617187073828
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7124845767733433461}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f8929202651f0374c897d65e5311e62f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

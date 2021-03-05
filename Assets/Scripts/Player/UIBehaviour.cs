@@ -28,19 +28,22 @@ public class UIBehaviour : MonoBehaviour
     [Header("Settings")]
     [Tooltip("How quickly in seconds do the bars fill or empty")] [SerializeField] private float updateSpeed = 0.25f;
 
+    
+    public float maxHealthWidth = 130f;
+    public float maxStaminaWidth = 130f;
+    public float maxBossWidth = 200f;
+
     //Internals 
-    private float maxHealthWidth;
-    private float maxStaminaWidth;
-    private float maxBossWidth;
     private float timeSinceSwap = 1f;
     private Animator animator;
-    //Built in methods
+    private IEnumerator _hpUpdate;
+    private IEnumerator _stamUpdate;
+    private IEnumerator _bossUpdate;
+
+    //Built-in methods
+
     public void Start()
     {
-        Debug.Log("Start UI behaviour");
-        maxHealthWidth = healthBar.sizeDelta.x;
-        maxStaminaWidth = staminaBar.sizeDelta.x;
-        maxBossWidth = bossBar.sizeDelta.x;
         if (boss != null) barName.text = boss.name;
         animator = GetComponent<Animator>();
     }
@@ -117,13 +120,19 @@ public class UIBehaviour : MonoBehaviour
         switch (bar)
         {
             case UIBars.Health:
-                StartCoroutine(changeBar(healthBar,maxHealthWidth, (num > 0 ? num : 0) / outof));
+                if (_hpUpdate != null) StopCoroutine(_hpUpdate);
+                _hpUpdate = changeBar(healthBar, maxHealthWidth, (num > 0 ? num : 0) / outof);
+                StartCoroutine(_hpUpdate);
                 break;
             case UIBars.Stamina:
-                StartCoroutine(changeBar(staminaBar, maxStaminaWidth, (num > 0 ? num : 0) / outof));
+                if (_stamUpdate != null) StopCoroutine(_stamUpdate);
+                _stamUpdate = changeBar(staminaBar, maxStaminaWidth, (num > 0 ? num : 0) / outof);
+                StartCoroutine(_stamUpdate);
                 break;
             case UIBars.Boss:
-                StartCoroutine(changeBar(bossBar, maxBossWidth, (num > 0 ? num : 0) / outof));
+                if (_bossUpdate != null) StopCoroutine(_bossUpdate);
+                _bossUpdate = changeBar(bossBar, maxBossWidth, (num > 0 ? num : 0) / outof);
+                StartCoroutine(_bossUpdate);
                 break;
             default:
                 break;
@@ -134,7 +143,7 @@ public class UIBehaviour : MonoBehaviour
     //Coroutines
     private IEnumerator changeBar(RectTransform bar,float width, float fraction)
     {
-        float count = 0;
+        float count = -Time.deltaTime;
         float dif = (fraction * width) - bar.sizeDelta.x;
         float start = bar.sizeDelta.x;
         while (count < updateSpeed)
@@ -142,9 +151,9 @@ public class UIBehaviour : MonoBehaviour
 
             bar.sizeDelta= new Vector2(start + (dif*count)/updateSpeed, 12);
 
-            count += Time.fixedDeltaTime;
+            count += Time.deltaTime;
 
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForEndOfFrame();
 
         }
     }

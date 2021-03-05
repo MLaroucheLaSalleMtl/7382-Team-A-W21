@@ -10,7 +10,7 @@ public class SkeletonBoss : BaseEnemyAI
     void Start()
     {
         this.hp = MAX_HP;
-        this.approach = 6f;             //Ghost is a ranged enemy
+        this.approach = 5f;             //Ranged enemy
         this.moveSpeed = 3f;
         this.attack_damage = 4;
         this.cooldownTimer = 1f;        //Time between attacks (in seconds) while in range

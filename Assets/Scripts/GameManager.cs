@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject sign;
     [SerializeField] private GameObject note;
     [SerializeField] private GameObject menu;
+    [SerializeField] private GameObject controls;
     [SerializeField] private Button btn_mainMenu;
     [SerializeField] Text noteText;
     [SerializeField] Text menuText;
@@ -52,26 +53,26 @@ public class GameManager : MonoBehaviour
     public void ItemFound()
     {
         Debug.Log("Item found");
+        StopPlayerMove();
         itemsFound++;
         string str = "You found ";
 
         switch (itemsFound)
         {
             case 1:                 //Shield
-                str += "a shield! \nHold left ctrl or left bumper to reflect enemy projectiles.";
+                str += "a shield! \nHold left ctrl or left bumper to reflect enemy projectiles and defend against incoming damage.";
                 break;
             case 2:                 //Bombs
-                str += "bombs! \nPress the _ button to use a bomb and _ to throw it.";
+                str += "bombs! \nPress the F key or Y button on your controller to take out a bomb and then press it again to throw the bomb. \nYou can pick bombs back up with the E key or A button.";
                 break;
             case 3:                 //Bow
-                str += "a bow and arrows! \nPress _ to switch between items, and _ to fire arrows at your enemies.";
+                str += "a bow! \nUse the scroll wheel or the right and left shoulders on your controller to switch between items. \nCharge up your shots to deal more damage!";
                 break;
             case 4:                 //Magic wand
-                str += "a magic wand! \nPress _ to fire magic at obstacles and hit two targets at once.";
+                str += "a magic wand! \nPress the F key or Y button to fire magic at obstacles and hit two targets at once. \nPress it again to split the magic bolt early.";
                 break;
         }
         noteText.text = str;
-        player.enabled = false;
         StartCoroutine("ChestDelay");
     }
     //When the player clears a dungeon
@@ -86,27 +87,62 @@ public class GameManager : MonoBehaviour
             DisplayNote();
         }
     }
-
+    //Displays menu when player clears all dungeons
     public void Victory()
     {
         menuText.text = "Victory!";
         EnableMenu();
     }
-
+    //Displays menu when player dies
     public void GameOver()
     {
         menuText.text = "Defeat";
         Invoke("EnableMenu", 3f);
     }
-
+    //Displays menu when player completes the demo
     public void DemoComplete()
     {
         menuText.text = "Demo Complete!";
         EnableMenu();
     }
+    //Displays the keyboard and gamepad controls
+    public void DisplayControls()
+    {
+        controls.SetActive(true);
+        DisableMenu();
+        StartCoroutine("ControlsScreen");
+    }
 
     /////Helper Functions/////
-    private void EnableMenu()
+    
+    IEnumerator ControlsScreen()
+    {
+        bool unpressed = false;
+        float delay = 0.5f;
+        //Wait 0.5 seconds
+        while (delay > 0)
+        {
+            delay -= Time.deltaTime;
+            yield return null;
+        }
+        //Wait for key press
+        while (true)
+        {
+            if (!Input.anyKeyDown)      //Make sure key press doesn't trigger twice in one frame
+            {
+                unpressed = true;
+                yield return null;
+            }
+            else if (unpressed)
+                break;
+            else
+                yield return null;
+        }
+        controls.SetActive(false);
+        EnableMenu();
+    }
+
+    public void EnableMenu()
     {
         menu.SetActive(true);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
@@ -117,7 +153,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine("WaitForButton");
     }
 
-    private void DisableMenu()
+    public void DisableMenu()
     {
         menu.SetActive(false);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
@@ -137,9 +173,9 @@ public class GameManager : MonoBehaviour
     private IEnumerator WaitForKey()
     {
         bool unpressed = false;
-        player.enabled = false;
-        float delay = 1f;
-        //Wait 1 second
+        StopPlayerMove();
+        float delay = 0.5f;
+        //Wait 0.5 seconds
         while (delay > 0)
         {
             delay -= Time.deltaTime;
@@ -161,16 +197,18 @@ public class GameManager : MonoBehaviour
         sign.SetActive(false);
         note.SetActive(false);
         StartCoroutine("SignCooldown");
-        player.enabled = true;
+        StartPlayerMove();
     }
 
     //Coroutine waits for a menu button to be pressed on screen
     private IEnumerator WaitForButton()
     {
-        player.enabled = false;
+        if (player)
+            StopPlayerMove();
         while (!buttonPressed)
             yield return null;
-        player.enabled = true;
+        if (player)
+            StartPlayerMove();
         buttonPressed = false;
     }
     //Prevents the player from accessing the sign again immediately
@@ -200,5 +238,18 @@ public class GameManager : MonoBehaviour
     public void RemoveManager()
     {
         Destroy(gameObject);
+    }
+    //Disables the player's movement
+    private void StopPlayerMove()
+    {
+        player.enabled = false;
+        player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+        player.gotoPoint = Vector2.zero;
+    }
+    //Enables the player's movement
+    private void StartPlayerMove()
+    {
+        player.enabled = true;
+        player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
     }
 }

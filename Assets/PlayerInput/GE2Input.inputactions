@@ -62,12 +62,20 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Weapon Swap",
+                    "name": "Weapon Swap(Gamepad)",
                     "type": "Button",
                     "id": "5314531b-835e-46f6-b871-a359d7966fb9",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Tap"
+                },
+                {
+                    "name": "Weapon Swap(Mouse)",
+                    "type": "PassThrough",
+                    "id": "6795ce22-168a-4313-a68c-773c2be0fbce",
+                    "expectedControlType": "Axis",
+                    "processors": "Clamp(min=-1,max=1)",
+                    "interactions": ""
                 },
                 {
                     "name": "PickUp",
@@ -191,28 +199,6 @@
                 },
                 {
                     "name": "",
-                    "id": "1635d3fe-58b6-4ba9-a4e2-f4b964f6b5c8",
-                    "path": "<XRController>/{Primary2DAxis}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3ea4d645-4504-4529-b061-ab81934c3752",
-                    "path": "<Joystick>/stick",
-                    "interactions": "",
-                    "processors": "StickDeadzone",
-                    "groups": "Joystick",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "c1f7a91b-d0fd-4a62-997e-7fb9b69bf235",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
@@ -235,19 +221,8 @@
                 },
                 {
                     "name": "",
-                    "id": "3e5f5442-8668-4b27-a940-df99bad7e831",
-                    "path": "<Joystick>/{Hatswitch}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Joystick",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "74c3bda9-8c43-4b4d-814c-708a44188c17",
-                    "path": "<Keyboard>/space",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -335,7 +310,7 @@
                 {
                     "name": "",
                     "id": "6b5db04c-a21c-4622-a81a-ae490f7a1956",
-                    "path": "<Keyboard>/f",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -346,7 +321,7 @@
                 {
                     "name": "",
                     "id": "ceb61aeb-999a-41af-afb9-72d9928ca1a3",
-                    "path": "<Gamepad>/buttonEast",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
@@ -361,40 +336,62 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Weapon Swap",
+                    "action": "Weapon Swap(Gamepad)",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "negative",
                     "id": "a37d958a-10f5-4a06-aac7-575fcfb6e8d4",
-                    "path": "<Keyboard>/numpad1",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Weapon Swap",
+                    "groups": "Gamepad",
+                    "action": "Weapon Swap(Gamepad)",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "positive",
                     "id": "93fd31bd-e0d1-4573-9b06-46b8b73c5de5",
-                    "path": "<Keyboard>/numpad3",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Weapon Swap",
+                    "groups": "Gamepad",
+                    "action": "Weapon Swap(Gamepad)",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "",
                     "id": "3f810bea-e0f1-4c6a-b1cb-0b91d64c2a88",
-                    "path": "<Keyboard>/g",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "PickUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "566616c4-8889-4b9c-92f6-48d64a5d9135",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "PickUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "41ebdc94-2af0-40ed-ba7e-c7b0cd4cf289",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Weapon Swap(Mouse)",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

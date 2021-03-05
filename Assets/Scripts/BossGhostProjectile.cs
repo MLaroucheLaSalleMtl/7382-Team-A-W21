@@ -12,6 +12,7 @@ public class BossGhostProjectile : Projectile
             collision.collider.GetComponent<LivingEntity>().Hurt(damage, this.gameObject.transform); 
             gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             gameObject.SetActive(false);
+            
         }
         //If we hit anything not enemy
         else if (!(collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))) 

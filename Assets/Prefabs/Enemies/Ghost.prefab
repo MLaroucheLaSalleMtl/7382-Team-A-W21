@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4315992214370787657}
   - component: {fileID: 4315992214370787658}
   - component: {fileID: 4315992214370787659}
+  - component: {fileID: -1641753927489419085}
   m_Layer: 9
   m_Name: Ghost
   m_TagString: Untagged
@@ -134,23 +135,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14484ae1748e74a4bbdd98e7a908d385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 10
+  body: {fileID: 0}
   direction: 270
-  attack_damage: 0
+  gotoPoint: {x: 0, y: 0}
   target: {fileID: 0}
   blinds:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   threshold: 1
   fov: 90
   range: 20
   wanderRange: 10
   approach: 7
-  speed: 3
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 0
   attackReach: {x: 0.8, y: 0.8}
   enemyProjectile: {fileID: 6258319988817248224, guid: 782f8c3a45fdbbd4f8c4b06ec305ac41, type: 3}
-  projectileSpeed: 0
-  gotoPoint: {x: 0, y: 0}
   rigid: {fileID: 0}
+--- !u!95 &-1641753927489419085
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4315992214370787660}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c4210f9680c83d548b0c1862226404a7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

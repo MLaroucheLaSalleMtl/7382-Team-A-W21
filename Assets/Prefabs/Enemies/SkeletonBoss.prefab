@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4315992214370787657}
   - component: {fileID: 4315992214370787658}
   - component: {fileID: 4301723459264502118}
+  - component: {fileID: -3805150136056944617}
   m_Layer: 9
   m_Name: SkeletonBoss
   m_TagString: Untagged
@@ -134,13 +135,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cfcd6243a110b74eb25fe23f177754a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 10
   body: {fileID: 4315992214370787657}
   direction: 270
   gotoPoint: {x: 0, y: 0}
   target: {fileID: 0}
   blinds:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   threshold: 1
   fov: 120
   range: 20
@@ -149,3 +151,22 @@ MonoBehaviour:
   attackReach: {x: 1, y: 1}
   enemyProjectile: {fileID: 343154768175472834, guid: db426ea818434c4488554116ee15aaea, type: 3}
   rigid: {fileID: 0}
+--- !u!95 &-3805150136056944617
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4315992214370787660}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0dfec8b2196752845afebf62e73f1a40, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2367226737276961834}
   - component: {fileID: 2367226737276961833}
   - component: {fileID: 2367226737276961832}
+  - component: {fileID: 470740614528679958}
   m_Layer: 9
   m_Name: Skeleton
   m_TagString: Untagged
@@ -141,7 +142,7 @@ MonoBehaviour:
   target: {fileID: 0}
   blinds:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   threshold: 1
   fov: 90
   range: 20
@@ -150,3 +151,22 @@ MonoBehaviour:
   attackReach: {x: 1.5, y: 1.5}
   enemyProjectile: {fileID: 0}
   rigid: {fileID: 0}
+--- !u!95 &470740614528679958
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2367226737276961839}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0dfec8b2196752845afebf62e73f1a40, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
