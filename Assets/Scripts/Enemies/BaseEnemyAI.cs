@@ -101,18 +101,27 @@ public class BaseEnemyAI : LivingEntity
             //If we can see our target head towards it
             if (canSee(target.position))
             {
-                Vector3 dif = target.position - this.transform.position;
-                float travelDist = dif.magnitude - approach;
-                dif = dif.normalized;
-                dif *= travelDist;
-                gotoPoint = this.transform.position + dif;
-                wasPlayer = true;
-                if ((gotoPoint - (Vector2)this.transform.position).magnitude < threshold)
+                if (enemyProjectile != null && Vector3.Distance(target.position, transform.position) < approach)
                 {
                     rigid.velocity /= 1.25f;
                     Action();
                 }
+                else
+                {
+                    Vector3 dif = target.position - this.transform.position;
+                    float travelDist = dif.magnitude - approach;
+                    dif = dif.normalized;
+                    dif *= travelDist;
+                    gotoPoint = this.transform.position + dif;
+                    wasPlayer = true;
+                    if ((gotoPoint - (Vector2)this.transform.position).magnitude < threshold)
+                    {
+                        rigid.velocity /= 1.25f;
+                        Action();
+                    }
+                }
             }
+
         }
         //Update enemy's walk/idle animation
         if (this.rigid.velocity.magnitude > 0.1)

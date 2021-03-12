@@ -38,7 +38,7 @@ public class BossGhostProjectile : Projectile
     {
         yield return new WaitForSeconds(0.5f);
         shot.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        yield return new WaitForSeconds(6f);
+        yield return new WaitForSeconds(4.75f);
         shot.GetComponent<Rigidbody2D>().velocity = (manager.player.transform.position - gameObject.transform.position).normalized * shotspeed;
         yield return null;
     }

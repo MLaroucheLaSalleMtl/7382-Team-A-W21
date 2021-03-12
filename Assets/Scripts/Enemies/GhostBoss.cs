@@ -31,10 +31,11 @@ public class GhostBoss : LivingEntity
         {
             return (previous_node == Destination) ? FindNode() : (previous_node = Destination);
         }
+        Debug.Log($"going to : {Destination.name}");
         return Destination;
     }
     //----------Attack Patern----------//
-    public void StandardPattern(int numBullet,ref int currentangle_Index, ref List<float> currentAngles, float rotationSpeed, float speed, out GameObject[] shots) 
+    public void StandardPattern(int numBullet, float rotationSpeed, float speed, out GameObject[] shots) 
     {
         //off set positive = clockwise, negative = counterclockwise
         shots = new GameObject[numBullet]; //all shots fired within this volley...(can add special characteristic to shots)
@@ -42,21 +43,21 @@ public class GhostBoss : LivingEntity
         float anglenum = 360f / numBullet;
         for (int i = 0; i < numBullet; i++) 
         {
-            float positionX = transform.position.x + Mathf.Sin((currentAngles[currentangle_Index] * Mathf.PI) / 180f);
-            float positionY = transform.position.y + Mathf.Cos((currentAngles[currentangle_Index] * Mathf.PI) / 180f);
+            float positionX = transform.position.x + Mathf.Sin((angles[index] * Mathf.PI) / 180f);
+            float positionY = transform.position.y + Mathf.Cos((angles[index] * Mathf.PI) / 180f);
             Vector2 projectileMove = (new Vector2(positionX, positionY) - (Vector2)transform.position).normalized * speed;
             GameObject temp = ObjectPooling.instance.GetBullet();
             temp.transform.position = transform.position;
             temp.SetActive(true);
             temp.GetComponent<Rigidbody2D>().velocity = projectileMove;
-            currentAngles[currentangle_Index] += anglenum + rotationSpeed;
+            angles[index] += anglenum + rotationSpeed;
             shots[i] = temp;
         }
-        if (Mathf.Abs(currentAngles[currentangle_Index]) >= 360f)
-            currentAngles[currentangle_Index] %= 360f;
+        if (Mathf.Abs(angles[index]) >= 360f)
+            angles[index] %= 360f;
         index++;
-        if (currentAngles.Count < currentangle_Index + 1)
-            currentAngles.Add(0f);
+        if (angles.Count < index + 1)
+            angles.Add(0f);
     }
     public void Action() 
     {
@@ -74,8 +75,8 @@ public class GhostBoss : LivingEntity
     public void TargetAttack() 
     {
         Vector2 middle_shot = (manager.player.transform.position - transform.position).normalized;
-        Vector2 second_shot = Rotate(45f, middle_shot);
-        Vector2 third_shot = Rotate(-45f, middle_shot);
+        Vector2 second_shot = Rotate(25f, middle_shot);
+        Vector2 third_shot = Rotate(-25f, middle_shot);
         
         Shot(ObjectPooling.instance.GetBullet(),middle_shot,bulletSpeed);
         Shot(ObjectPooling.instance.GetBullet(), second_shot, bulletSpeed);
@@ -105,20 +106,20 @@ public class GhostBoss : LivingEntity
     public void StaticPattern_Flower() 
     {
         GameObject[] shot_volley;
-        StandardPattern(bulletnum, ref index, ref angles, 5, bulletSpeed, out shot_volley);
+        StandardPattern(bulletnum, 5, bulletSpeed, out shot_volley);
         StopGimmick(shot_volley);
-        StandardPattern(bulletnum, ref index, ref angles, -5, bulletSpeed, out shot_volley);
+        StandardPattern(bulletnum, -5, bulletSpeed, out shot_volley);
         StopGimmick(shot_volley);
-        StandardPattern(2, ref index, ref angles, 10, bulletSpeed + (bulletSpeed / 4), out _);
-        StandardPattern(2, ref index, ref angles, -10, bulletSpeed + (bulletSpeed / 4), out _);
+        StandardPattern(2, 10, bulletSpeed + (bulletSpeed / 4), out _);
+        StandardPattern(2, -10, bulletSpeed + (bulletSpeed / 4), out _);
         angles.RemoveAt(index);
         index = 0;
     }
     public void StaticPatern_CircleTrack() 
     {
         GameObject[] volley;
-        StandardPattern(4, ref index, ref angles, -1, bulletSpeed, out _);
-        StandardPattern(1, ref index, ref angles, 15, bulletSpeed, out volley);
+        StandardPattern(4, -1, bulletSpeed, out _);
+        StandardPattern(1, 15, bulletSpeed, out volley);
         TargetGimmick(volley);
         angles.RemoveAt(index);
         index = 0;
@@ -140,7 +141,6 @@ public class GhostBoss : LivingEntity
         //play animation
         //base.Attack();
         //add stuff in delegate here
-        Debug.Log("setting up attack");
         if (moving)
         {
             decision = TargetAttack;
@@ -176,7 +176,7 @@ public class GhostBoss : LivingEntity
         {
             transform.position = Vector2.Lerp(startpoint, gotoPoint, currentLocal);
             currentLocal += 0.01f;
-            yield return new WaitForSeconds(0.025f);
+            yield return new WaitForSeconds(0.02f);
         }
         Debug.Log("Destination Reached");
         yield return null;
@@ -184,8 +184,8 @@ public class GhostBoss : LivingEntity
     private IEnumerator Attacking() 
     {
         float count = 0;
-        float timer = (decision != TargetAttack) ? 40f : 20f;
-        float delay = (decision == StaticPatern_CircleTrack) ? 0.25f : 0.5f;
+        float timer = (decision != TargetAttack) ? 50f : 10f;
+        float delay = (decision == StaticPatern_CircleTrack) ? 0.2f : 0.5f;
         //add more to condition if there's more attack
         while (count < timer) 
         {

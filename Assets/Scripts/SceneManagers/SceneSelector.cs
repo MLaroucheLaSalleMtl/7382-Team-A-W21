@@ -10,8 +10,11 @@ public class SceneSelector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Scene currentScene = SceneManager.GetActiveScene();
-        async = SceneManager.LoadSceneAsync(currentScene.buildIndex + 1);   //Load the next scene
+        if(collision.gameObject.GetComponent<Player>())
+        {
+            Scene currentScene = SceneManager.GetActiveScene();
+            async = SceneManager.LoadSceneAsync(currentScene.buildIndex + 1);   //Load the next scene
+        }
     }
 
     private void Update()

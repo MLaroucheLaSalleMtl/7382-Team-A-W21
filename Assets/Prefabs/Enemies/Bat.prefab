@@ -147,7 +147,7 @@ MonoBehaviour:
   fov: 90
   range: 20
   wanderRange: 10
-  approach: 1
+  approach: 0
   attackReach: {x: 1.5, y: 1.5}
   enemyProjectile: {fileID: 0}
   rigid: {fileID: 0}

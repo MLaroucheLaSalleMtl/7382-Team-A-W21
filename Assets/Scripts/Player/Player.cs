@@ -32,7 +32,7 @@ public class Player : LivingEntity
     public int stamina = 20;
     public int dashCost = 5;
     public int shieldCost = 5;
-    [Tooltip("How long before regend")] public float regenTime = 1f;
+    [Tooltip("How long before regend")] public float regenTime = 1.5f;
     [Tooltip("How long between each point regenerated")] public float regenSpeed = 0.5f;
 
     [Header("Other")]
@@ -74,8 +74,8 @@ public class Player : LivingEntity
     public SecondaryAttack SecondaryAttack1 { get => secondaryAttack; set => secondaryAttack = value; }
     //Bow
     [SerializeField] private GameObject prefab_arrow;
-    [SerializeField] private int bowDamage;
-    [SerializeField] private float bowSpeed; // multiplier
+    [SerializeField] private int bowDamage = 1;
+    [SerializeField] private float bowSpeed = 1; // multiplier
     private const int bowDamageCap = 3;
     private const float timerCap = 3;
     private IEnumerator bowCharge;
@@ -118,6 +118,11 @@ public class Player : LivingEntity
             if (context.canceled)
                 LowerShield();
         }
+    }
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (context.started)
+            manager.Pause();
     }
     public void OnSecondary_Attack(InputAction.CallbackContext context) 
     {

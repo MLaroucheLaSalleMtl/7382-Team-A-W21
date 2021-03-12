@@ -3,26 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
-    public Player player;                       //Reference to the player character
+    public Player player;                   //Reference to the player character
     [SerializeField] private GameObject[] dontDestroy;  //Objects that persist between scenes
     private int dungeonsCleared = 0;
     private int itemsFound = 0;
-    private bool cooldown = false;                //If the action has been performed recently (On cooldown)
+    private bool cooldown = false;          //If the action has been performed recently (On cooldown)
 
-    //Values for displaying messages to the player (Image, text, buttons)
+    //Values for pause and save features
+    private bool paused = false;
+
+    //Values for displaying messages to the player (Images, text, buttons)
+    [SerializeField] public GameObject hud;
     [SerializeField] private GameObject sign;
     [SerializeField] private GameObject note;
-    [SerializeField] private GameObject menu;
-    [SerializeField] private GameObject controls;
+    [SerializeField] public GameObject mainMenu;
+    [SerializeField] private GameObject gameOverMenu;
+    [SerializeField] private GameObject controlsMenu;
+    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private Button btn_newGame;
     [SerializeField] private Button btn_mainMenu;
+    [SerializeField] private Button btn_resume;
     [SerializeField] Text noteText;
     [SerializeField] Text menuText;
     public bool buttonPressed = false;
-
 
     //Make sure there's only one instance of GameManager
     private void Awake()
@@ -40,6 +48,46 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gObject);
         }
     }
+    private void Start()
+    {
+        StopPlayerMove();
+    }
+
+    /////Menu Functions/////
+
+    //Displays the keyboard and gamepad controls
+    public void DisplayControls()
+    {
+        controlsMenu.SetActive(true);
+        if(mainMenu)
+            DisableMenu(mainMenu);
+        DisableMenu(pauseMenu);
+        StartCoroutine("ControlsScreen");
+    }
+    //Pause game
+    public void Pause()
+    {
+        if(paused)
+        {
+            Time.timeScale = 1f;                        //Unpause time
+            paused = false;
+            Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+            Cursor.visible = false;
+            DisableMenu(pauseMenu);
+            StartPlayerMove();
+        }
+        else
+        {
+            Time.timeScale = 0f;                    //Pause time
+            paused = true;
+            Cursor.lockState = CursorLockMode.None; //Unlock and show cursor
+            Cursor.visible = true;
+            EnableMenu(pauseMenu, btn_resume);
+        }
+    }
+
+    /////UI Functions/////
+
     //When the player reads the signpost in HubWorld
     public void ReadSign()
     {
@@ -91,7 +139,7 @@ public class GameManager : MonoBehaviour
     public void Victory()
     {
         menuText.text = "Victory!";
-        EnableMenu();
+        EnableMenu(gameOverMenu, btn_mainMenu);
     }
     //Displays menu when player dies
     public void GameOver()
@@ -99,28 +147,51 @@ public class GameManager : MonoBehaviour
         menuText.text = "Defeat";
         Invoke("EnableMenu", 3f);
     }
-    //Displays menu when player completes the demo
-    public void DemoComplete()
-    {
-        menuText.text = "Demo Complete!";
-        EnableMenu();
-    }
-    //Displays the keyboard and gamepad controls
-    public void DisplayControls()
-    {
-        controls.SetActive(true);
-        DisableMenu();
-        StartCoroutine("ControlsScreen");
-    }
-
+ 
     /////Helper Functions/////
     
+    //For player death's invoke command
+    private void EnableMenu()
+    {
+        EnableMenu(gameOverMenu, btn_mainMenu);
+    }
+    public void EnableMenu(GameObject menu, Button defaultBtn)
+    {
+        menu.SetActive(true);
+        Button[] buttons = menu.GetComponentsInChildren<Button>();
+        foreach (Button btn in buttons)
+            btn.enabled = true;
+        //Select first button (for keyboard/gamepad)
+        EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);
+        Cursor.lockState = CursorLockMode.None;   //Unlock and show cursor
+        Cursor.visible = true;
+        StartCoroutine("WaitForButton");
+    }
+
+    public void DisableMenu(GameObject menu)
+    {
+        menu.SetActive(false);
+        Button[] buttons = menu.GetComponentsInChildren<Button>();
+        foreach (Button btn in buttons)
+            btn.enabled = false;
+        //Reset currently selected button
+        EventSystem.current.SetSelectedGameObject(null);
+        Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+        Cursor.visible = false;
+    }
+
+    private void DisplayNote()
+    {
+        note.SetActive(true);
+        StartCoroutine("WaitForKey");
+    }
+
     IEnumerator ControlsScreen()
     {
         bool unpressed = false;
-        float delay = 0.5f;
-        //Wait 0.5 seconds
-        while (delay > 0)
+        float delay = 0.2f;
+        //Wait 0.2 seconds
+        while (delay > 0 && Time.timeScale != 0)
         {
             delay -= Time.deltaTime;
             yield return null;
@@ -138,35 +209,11 @@ public class GameManager : MonoBehaviour
             else
                 yield return null;
         }
-        controls.SetActive(false);
-        EnableMenu();
-    }
-
-    public void EnableMenu()
-    {
-        menu.SetActive(true);
-        Button[] buttons = menu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)
-            btn.enabled = true;
-        //Select first button (for keyboard/gamepad)
-        EventSystem.current.SetSelectedGameObject(btn_mainMenu.gameObject, null);
-        StartCoroutine("WaitForButton");
-    }
-
-    public void DisableMenu()
-    {
-        menu.SetActive(false);
-        Button[] buttons = menu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)
-            btn.enabled = false;
-        //Reset currently selected button
-        EventSystem.current.SetSelectedGameObject(null);
-    }
-
-    private void DisplayNote()
-    {
-        note.SetActive(true);
-        StartCoroutine("WaitForKey");
+        controlsMenu.SetActive(false);
+        if(mainMenu)
+            EnableMenu(mainMenu, btn_newGame);
+        else
+            EnableMenu(pauseMenu, btn_resume);
     }
 
     //Coroutine waits for any key/mouse/gamepad press
@@ -240,14 +287,14 @@ public class GameManager : MonoBehaviour
         Destroy(gameObject);
     }
     //Disables the player's movement
-    private void StopPlayerMove()
+    public void StopPlayerMove()
     {
         player.enabled = false;
         player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         player.gotoPoint = Vector2.zero;
     }
     //Enables the player's movement
-    private void StartPlayerMove()
+    public void StartPlayerMove()
     {
         player.enabled = true;
         player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;

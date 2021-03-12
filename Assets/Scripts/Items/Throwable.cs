@@ -30,9 +30,10 @@ public class Throwable : MonoBehaviour
         float currentLocal = 0.0f;
         while (currentLocal < 1 && !hit)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 0.2f, wallDetect);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 0.8f, wallDetect);
             if (hit)
             {
+                Debug.Log(hit.collider.name);
                 //get current object's position
                 end = transform.position;
                 currentLocal = 1;

@@ -9,7 +9,7 @@ public class Skeleton : BaseEnemyAI
     {
         this.approach = 0.5f;     //Skeleton is a melee enemy
         this.moveSpeed = 3f;
-        this.attack_damage = 6;
+        this.attack_damage = 3;
         base.Start();
     }
 
