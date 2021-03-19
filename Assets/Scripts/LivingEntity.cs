@@ -24,7 +24,7 @@ public class LivingEntity : MonoBehaviour
     protected int attack_damage;
     [HideInInspector] public Vector2 gotoPoint;     //Where to walk to
     protected bool interrupt = false;               //Pauses follow/roaming AI behaviour
-    private const float timer = 0.5f;
+    protected const float timer = 0.5f;
     IEnumerator knockback;
     protected bool invincible = false;
     protected Renderer myRenderer;
@@ -32,6 +32,9 @@ public class LivingEntity : MonoBehaviour
     protected Vector3 hitBoxOffset = new Vector3(0,0,0);           //Offset from the entity of its hitbox 
     protected float offsetMagnitude = 0f;     //Magnitude of the entity hitbox offset
     private const float shieldKnockback = 5f;
+
+    //AudioSource
+    [SerializeField] protected AudioSource hurtSound;
 
 
     // Start is called before the first frame update
@@ -41,6 +44,7 @@ public class LivingEntity : MonoBehaviour
         this.body = GetComponent<Rigidbody2D>();
         this.myRenderer = GetComponent<Renderer>();
         this.anim = GetComponent<Animator>();
+        this.hurtSound = GetComponent<AudioSource>();
     }
     //Rotate the direction enumerator based on a Vector2
     protected void Rotate(Vector2 dir)
@@ -81,19 +85,19 @@ public class LivingEntity : MonoBehaviour
 
     public virtual void Hurt(int damage, Transform hitting) 
     {
-        int multiplier = 1; //debug reasons
         //stop entity's velocity so you can push them...
         interrupt = true;
-
+        //play hurt noise
+        hurtSound.Play();
         body.velocity = Vector2.zero;
         hp -= damage;
         if (hitting != null)
         {
             Vector2 distance = gameObject.transform.position - hitting.transform.position;
             if (damage > 0)
-                distance = distance.normalized * damage * multiplier;   //Normal hit
+                distance = distance.normalized * damage;   //Normal hit
             else
-                distance = distance.normalized * shieldKnockback * multiplier;   //Hit blocked by shield
+                distance = distance.normalized * shieldKnockback;   //Hit blocked by shield
             body.velocity = (distance);
         }
         //If hp reaches 0

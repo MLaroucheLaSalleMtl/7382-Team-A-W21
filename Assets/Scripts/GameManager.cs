@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     public Player player;                   //Reference to the player character
     [SerializeField] private GameObject[] dontDestroy;  //Objects that persist between scenes
     private int dungeonsCleared = 0;
-    private int itemsFound = 0;
     private bool cooldown = false;          //If the action has been performed recently (On cooldown)
 
     //Values for pause and save features
@@ -24,7 +23,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameObject mainMenu;
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private GameObject controlsMenu;
+    [SerializeField] private GameObject optionsMenu;
     [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private Button btn_applyOptions;
     [SerializeField] private Button btn_newGame;
     [SerializeField] private Button btn_mainMenu;
     [SerializeField] private Button btn_resume;
@@ -64,6 +65,21 @@ public class GameManager : MonoBehaviour
         DisableMenu(pauseMenu);
         StartCoroutine("ControlsScreen");
     }
+
+    //Display options menu
+    public void DisplayOptions()
+    {
+        EnableMenu(optionsMenu, btn_applyOptions);
+        if (mainMenu)
+            DisableMenu(mainMenu,false);
+        DisableMenu(pauseMenu,false);
+    }
+
+    public void ReturnToMain()
+    {
+        EnableMenu(mainMenu, btn_newGame);
+    }
+
     //Pause game
     public void Pause()
     {
@@ -102,22 +118,22 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Item found");
         StopPlayerMove();
-        itemsFound++;
+        
         string str = "You found ";
 
-        switch (itemsFound)
+        switch (player.weaponLock)
         {
             case 1:                 //Shield
                 str += "a shield! \nHold left ctrl or left bumper to reflect enemy projectiles and defend against incoming damage.";
                 break;
             case 2:                 //Bombs
-                str += "bombs! \nPress the F key or Y button on your controller to take out a bomb and then press it again to throw the bomb. \nYou can pick bombs back up with the E key or A button.";
+                str += "bombs! \nPress the right mouse button or Y button on your controller to take out a bomb and then press it again to throw the bomb. \nYou can pick bombs back up with the E key or A button.";
                 break;
             case 3:                 //Bow
                 str += "a bow! \nUse the scroll wheel or the right and left shoulders on your controller to switch between items. \nCharge up your shots to deal more damage!";
                 break;
             case 4:                 //Magic wand
-                str += "a magic wand! \nPress the F key or Y button to fire magic at obstacles and hit two targets at once. \nPress it again to split the magic bolt early.";
+                str += "a magic wand! \nPress the right mouse button or Y button to fire magic at obstacles and hit two targets at once. \nPress it again to split the magic bolt early.";
                 break;
         }
         noteText.text = str;
@@ -126,20 +142,8 @@ public class GameManager : MonoBehaviour
     //When the player clears a dungeon
     public void DungeonCleared()
     {
-        dungeonsCleared++;
-        if (dungeonsCleared >= 3)   //If all dungeons have been cleared
-            Victory();
-        else
-        {
-            noteText.text = "You have cleared the dungeon! \n\nThe boss dropped a strange key, what could it unlock?";
-            DisplayNote();
-        }
-    }
-    //Displays menu when player clears all dungeons
-    public void Victory()
-    {
-        menuText.text = "Victory!";
-        EnableMenu(gameOverMenu, btn_mainMenu);
+        noteText.text = "You have cleared the dungeon! \n\nThe boss dropped a key, what could it unlock?";
+        DisplayNote();
     }
     //Displays menu when player dies
     public void GameOver()
@@ -168,7 +172,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine("WaitForButton");
     }
 
-    public void DisableMenu(GameObject menu)
+    public void DisableMenu(GameObject menu, bool cursorOff = true)
     {
         menu.SetActive(false);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
@@ -176,8 +180,11 @@ public class GameManager : MonoBehaviour
             btn.enabled = false;
         //Reset currently selected button
         EventSystem.current.SetSelectedGameObject(null);
-        Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
-        Cursor.visible = false;
+        if (cursorOff == true)
+        {
+            Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+            Cursor.visible = false;
+        }
     }
 
     private void DisplayNote()
@@ -246,7 +253,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine("SignCooldown");
         StartPlayerMove();
     }
-
     //Coroutine waits for a menu button to be pressed on screen
     private IEnumerator WaitForButton()
     {

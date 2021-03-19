@@ -15,19 +15,28 @@ public class StartGame : MonoBehaviour
         Cursor.visible = true;
     }
 
-    public void StartNewGame()
+    private void PrepStart()
     {
         Input.ResetInputAxes();     //Avoid accidental selection on button release
         System.GC.Collect();        //Clear memory of unused items
+    }
+
+    public void StartNewGame()
+    {
+        PrepStart();
         async = SceneManager.LoadSceneAsync(3);     //Load hub world
         async.allowSceneActivation = false;         //Wait to switch to next scene
     }
 
     public void ContinueSavedGame()
     {
-        Input.ResetInputAxes();     //Avoid accidental selection on button release
-        System.GC.Collect();        //Clear memory of unused items
-        async = SceneManager.LoadSceneAsync(3);     //Load next scene
+        PrepStart();
+        int i = PlayerPrefs.GetInt("Level", 3);     //Read save game data from the registry
+        if (i > 6)
+            manager.player.InteractionAdd();        //Add shield
+        if (i > 10)
+            manager.player.InteractionAdd();        //Add bombs
+        async = SceneManager.LoadSceneAsync(i);     //Load saved scene
         async.allowSceneActivation = false;         //Wait to switch to next scene
     }
 

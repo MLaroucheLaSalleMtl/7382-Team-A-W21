@@ -50,4 +50,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ThirdDungeon.unity
     guid: 6285825eb16cbf540a873f96f73df42a
+  - enabled: 1
+    path: Assets/Scenes/Loading.unity
+    guid: 41bad2e614694904fb8e40156fa135aa
+  - enabled: 1
+    path: Assets/Scenes/Cutscene.unity
+    guid: 6651271f84abfd847a279c4e46f9e3ce
   m_configObjects: {}

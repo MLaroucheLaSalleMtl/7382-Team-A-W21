@@ -12,7 +12,7 @@ public class SkeletonBoss : BaseEnemyAI
         this.hp = MAX_HP;
         this.approach = 5f;             //Ranged enemy
         this.moveSpeed = 3f;
-        this.attack_damage = 4;
+        this.attack_damage = 3;
         this.cooldownTimer = 1f;        //Time between attacks (in seconds) while in range
         this.projectileSpeed = 5f;
         this.fov = 360;                 //300 degrees of vision

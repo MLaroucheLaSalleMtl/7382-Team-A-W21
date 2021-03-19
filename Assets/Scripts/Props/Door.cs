@@ -7,7 +7,7 @@ public class Door : Interactable
     [SerializeField] private bool closed;   //Is the door closed?
     public bool locked;                     //Is the door locked?
     [SerializeField] private bool dungeonExit;  //Is this door the dungeon exit?
-    [SerializeField] GameObject[] enemies;  //Door unlocks when all enemies are defeated
+    public List<GameObject> enemies;  //Door unlocks when all enemies are defeated
 
     [SerializeField] private Arrow_Switch[] switches; //used for switches, different from enemies
 
@@ -49,7 +49,7 @@ public class Door : Interactable
     }
     private void Update()
     {
-        if ((enemies.Length > 0 || switches.Length > 0) && locked && closed)
+        if ((enemies.Count > 0 || switches.Length > 0) && locked && closed)
             CheckLocks();       //Check if conditions have been met to open door
     }
 

@@ -21,6 +21,7 @@ public class Throwable : MonoBehaviour
     public void Pickup(Transform head) 
     {
         thrown = false;
+        gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
         this.gameObject.transform.position = head.position;
         this.gameObject.transform.parent = head;
     }
@@ -30,13 +31,13 @@ public class Throwable : MonoBehaviour
         float currentLocal = 0.0f;
         while (currentLocal < 1 && !hit)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 0.8f, wallDetect);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 1f, wallDetect);
             if (hit)
             {
                 Debug.Log(hit.collider.name);
                 //get current object's position
                 end = transform.position;
-                currentLocal = 1;
+                currentLocal = 0.9f;
             }
             //10% of the way to destination player can collide with it
             if (currentLocal > 0.1f)

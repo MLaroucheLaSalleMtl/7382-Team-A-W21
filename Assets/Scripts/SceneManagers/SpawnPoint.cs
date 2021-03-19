@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //Initializes dungeon specific variables and restores player to full health
 public class SpawnPoint : MonoBehaviour
@@ -20,5 +21,6 @@ public class SpawnPoint : MonoBehaviour
         }
         player.canvas.GetComponent<UIBehaviour>().boss = this.boss; //Set boss for this dungeon
         player.canvas.GetComponent<UIBehaviour>().Start();
+        SceneManager.MoveGameObjectToScene(GameManager.instance.gameObject, SceneManager.GetActiveScene());
     }
 }

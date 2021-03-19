@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 public enum WeaponSlot
 {
     None = 0,
@@ -43,7 +42,6 @@ public class Player : LivingEntity
     private float sinceLastDrain = 3f;
     private bool interact = false;
     private bool attacking; // could probably use delegates and stuff
-    private const float timer = 0.5f;
     private IEnumerator attack_cooldown;
     private bool dashing;
     private ContactFilter2D filter2D;
@@ -64,6 +62,9 @@ public class Player : LivingEntity
     private bool sAttack = false;
     private bool attack_cancel = false; //primary used for bow (when charging it will not let player attack)
     private bool pickup = false;
+    private bool itemCooldown = false;
+    private const float ITEM_CD_TIMER = 1f;
+
     //Bomb
     [SerializeField] private GameObject prefab_bomb;
     [SerializeField] private Transform bomb_spawn;
@@ -126,14 +127,14 @@ public class Player : LivingEntity
     }
     public void OnSecondary_Attack(InputAction.CallbackContext context) 
     {
-        switch (slot) 
+        switch (slot)
         {
             case WeaponSlot.Bow:
-                if (!shield.activeSelf && attack_cooldown == null)
+                if (!shield.activeSelf && attack_cooldown == null && !itemCooldown)
                 {
                     if (context.started)
                         ChargeBow();
-                    if (context.canceled)
+                    if (context.canceled && secondaryAttack == ChargeBow)
                         ShootBow();
                 }
                 break;
@@ -142,6 +143,7 @@ public class Player : LivingEntity
                 sAttack = context.performed;
                 break;
         }
+        
     }
     public void OnPickup(InputAction.CallbackContext context) 
     {
@@ -298,7 +300,7 @@ public class Player : LivingEntity
         //move character
         Animate_Direction();
         //Check secondary attack
-        if (sAttack && !shield.activeSelf)
+        if (sAttack && !shield.activeSelf && !itemCooldown)
         {
             Current_SAttack();
         }
@@ -348,6 +350,7 @@ public class Player : LivingEntity
         StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn, end));
         secondaryAttack = null;
         sAttack = false;
+        StartCoroutine(ItemCooldown());
     }
     //----------Pick Up----------//
     public void PickUp() 
@@ -361,7 +364,7 @@ public class Player : LivingEntity
             Collider2D hit;
             if (hit = Physics2D.OverlapBox(orientation, size, 0f, pickMask))
             {
-                if (hit.GetComponent<Throwable>() != null)
+                if (hit.GetComponent<Throwable>())
                 {
                     hit.GetComponent<Throwable>().Pickup(bomb_spawn);
                     clone_throw = hit.gameObject;
@@ -392,6 +395,7 @@ public class Player : LivingEntity
     {
         moveSpeed /= 4;
         attack_cancel = true;
+        secondaryAttack = ChargeBow;
         if (bowCharge == null)
         {
             bowCharge = Bow_Charge();
@@ -416,6 +420,10 @@ public class Player : LivingEntity
         bowSpeed = 1f;
         moveSpeed = originalSpeed;
         attack_cancel = false;
+
+        //cooldown
+        StartCoroutine(ItemCooldown());
+        secondaryAttack = null;
     }
     //----------Mystery Item----------//
     public void Mystery() 
@@ -483,7 +491,7 @@ public class Player : LivingEntity
     public override void Attack()
     {
         //if clone_bomb was created and if the bomb was already thrown...
-        if (clone_throw != null && !clone_throw.GetComponent<Throwable>().Thrown && !shield.activeSelf)
+        if (clone_throw && !clone_throw.GetComponent<Throwable>().Thrown && !shield.activeSelf)
             Throw_Bomb();
         else if (!shield.activeSelf)
         {
@@ -508,6 +516,20 @@ public class Player : LivingEntity
         manager.GameOver();     //Show Game Over screen + menu
     }
     //----------Coroutines----------//
+
+    private IEnumerator ItemCooldown()
+    {
+        itemCooldown = true;
+        float timer = ITEM_CD_TIMER;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+        itemCooldown = false;
+        
+    }
+
     private IEnumerator Attack_Cooldown() 
     {
         while (attacking) 
@@ -593,17 +615,17 @@ public class Player : LivingEntity
     }
     private IEnumerator Bow_Charge() 
     {
-        float timer = 0f;
-        while (timer < timerCap) 
+        float charge = 0f;
+        while (charge < timerCap) 
         {
             if (bowDamage <= bowDamageCap)
             {
-                Debug.Log($"bow damage: {bowDamage}, bow speed: {bowSpeed} , timer: {timer}");
+                Debug.Log($"bow damage: {bowDamage}, bow speed: {bowSpeed} , timer: {charge}");
                 bowDamage++;
                 bowSpeed++;
             }
-            timer++;
-            yield return new WaitForSeconds(1f);
+            charge++;
+            yield return new WaitForSeconds(2 * timer);
         }
         bowCharge = null;
     }

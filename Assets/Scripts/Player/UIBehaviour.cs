@@ -46,6 +46,7 @@ public class UIBehaviour : MonoBehaviour
     {
         if (boss != null) barName.text = boss.name;
         animator = GetComponent<Animator>();
+        SetBar(UIBars.Boss, 1, 1);
     }
 
     private void Update()

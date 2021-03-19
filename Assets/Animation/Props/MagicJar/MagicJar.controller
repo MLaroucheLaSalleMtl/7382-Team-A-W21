@@ -34,7 +34,7 @@ AnimatorState:
   m_PrefabAsset: {fileID: 0}
   m_Name: MagicJarBreak
   m_Speed: 2
-  m_CycleOffset: 0
+  m_CycleOffset: 0.3
   m_Transitions:
   - {fileID: 791477869892374838}
   m_StateMachineBehaviours: []
@@ -66,7 +66,7 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -123,7 +123,7 @@ AnimatorStateTransition:
   m_IsExit: 0
   serializedVersion: 3
   m_TransitionDuration: 0
-  m_TransitionOffset: 0
+  m_TransitionOffset: 0.3
   m_ExitTime: 1
   m_HasExitTime: 1
   m_HasFixedDuration: 0

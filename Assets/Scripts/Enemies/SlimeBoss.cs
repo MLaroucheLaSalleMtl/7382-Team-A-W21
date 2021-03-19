@@ -6,7 +6,7 @@ public class SlimeBoss : BaseEnemyAI
 {
 
     [SerializeField] private GameObject minion;
-    [SerializeField] private GameObject canvas;
+    [SerializeField] private Door exitDoor;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,7 +20,7 @@ public class SlimeBoss : BaseEnemyAI
 
     public override void Hurt(int damage, Transform hitting)
     {
-        if (hitting.name == "Bomb(Clone)" && !invincible)
+        if (hitting.GetComponent<Throwable>() && !invincible)
         {
             this.transform.localScale *= 0.83333f;
             this.attackReach *= 0.83333f;
@@ -34,11 +34,12 @@ public class SlimeBoss : BaseEnemyAI
 
                 StartCoroutine(invFrames(2));
                 GameObject newBlob = Instantiate(minion, this.transform.position, new Quaternion(), null);
+                exitDoor.enemies.Add(newBlob);
                 LivingEntity ent = newBlob.GetComponent<LivingEntity>();
                 ent.Start();
                 ent.StartCoroutine(ent.invFrames(1));
                 ent.hp = 1;
-                canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, 6); //UPDATE UI
+                manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, 6); //UPDATE UI
             }
             
         }

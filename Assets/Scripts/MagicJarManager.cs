@@ -43,11 +43,16 @@ public class MagicJarManager : MonoBehaviour
             }
             if (allBroken)
             {
-                foreach (magicJar jar in jars)
-                {
-                    jar.BringBack();
-                }
+                Invoke("repairAll", 1f);
             }
+        }
+    }
+
+    private void repairAll()
+    {
+        foreach (magicJar jar in jars)
+        {
+            jar.BringBack();
         }
     }
 

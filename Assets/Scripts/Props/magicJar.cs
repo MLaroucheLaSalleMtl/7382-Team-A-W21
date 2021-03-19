@@ -7,12 +7,11 @@ public class magicJar : LivingEntity
     
     [HideInInspector] public MagicJarManager magicManager;
     public bool broken = false;
-    private Animator anim;
 
     void Start()
     {
-        anim = GetComponent<Animator>();
-        anim.SetBool("broken", broken);
+        base.anim = GetComponent<Animator>();
+        base.anim.SetBool("broken", broken);
     }
 
     public void BringBack()
@@ -20,7 +19,7 @@ public class magicJar : LivingEntity
         if (broken)
         {
             broken = false;
-            anim.SetBool("broken", false);
+            base.anim.SetBool("broken", false);
         }
     }
 
@@ -29,7 +28,7 @@ public class magicJar : LivingEntity
         if (!broken)
         {
             broken = true;
-            anim.SetBool("broken", true);
+            base.anim.SetBool("broken", true);
             if (magicManager) magicManager.checkForSolve(); 
         }
     }

@@ -19,7 +19,7 @@ public class Bombs : Throwable
         foreach (Collider2D c in hit) 
         {
             //what it hit
-            if (c.gameObject.GetComponent<LivingEntity>() != null)
+            if (c.gameObject.GetComponent<LivingEntity>())
             {
                 c.gameObject.GetComponent<LivingEntity>().Hurt(this.damage, gameObject.transform);
                 //check if player is holding this bomb
