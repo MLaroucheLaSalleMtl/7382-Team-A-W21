@@ -31,8 +31,9 @@ public class Interactable : MonoBehaviour
         if (gameObject.CompareTag("Chest"))
         {
             manager.player.InteractionAdd();
-            anim.SetTrigger("Open");
-            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            anim.SetTrigger("Open");                //Play chest opening animation
+            GetComponent<AudioSource>().Play();     //Play chest opening sound effect
+            this.gameObject.layer = LayerMask.NameToLayer("Default");   //Player can no longer interact with open chest
             manager.ItemFound();
         }
         //If this item is a sign post

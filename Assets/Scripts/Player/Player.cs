@@ -75,11 +75,12 @@ public class Player : LivingEntity
     public SecondaryAttack SecondaryAttack1 { get => secondaryAttack; set => secondaryAttack = value; }
     //Bow
     [SerializeField] private GameObject prefab_arrow;
-    [SerializeField] private int bowDamage = 1;
-    [SerializeField] private float bowSpeed = 1; // multiplier
-    private const int bowDamageCap = 3;
+    [SerializeField] private int bowDamage;
+    [SerializeField] private float bowSpeed; // multiplier
     private const float timerCap = 3;
     private IEnumerator bowCharge;
+    private const int baseBowDamage = 1;
+    private const float baseBowSpeed = 2;
     //MysteryItem
     [SerializeField] private GameObject prefab_split;
     [SerializeField] private int mysteryDamage; // changeable in editor
@@ -90,6 +91,10 @@ public class Player : LivingEntity
     [Header("Effects")]
     [SerializeField] private ParticleSystem stunnedSparkles;
     [SerializeField] private ParticleSystem dashPuffs;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource throwNoise;
+    [SerializeField] private AudioSource bowChargeNoise;
     //----------debug----------//
 
     //----------Input System----------//
@@ -263,51 +268,37 @@ public class Player : LivingEntity
     void FixedUpdate()
     {
         if (attacking && !attack_cancel)
-        {
             Attack();
-        }
+
         if (interact) 
-        {
             if (!interrupt)
-            {
                 Interact();
-            }
             else
-            {
                 interact = false;
-            }
-        }
+
         if (dashing)
-        {
             if ( interrupt || stamina < dashCost || gotoPoint.magnitude == 0)
-            {
                 dashing = false;
-            }
             else
             {
                 stamina -= dashCost;
                 UIScript.SetBar(UIBars.Stamina, stamina, maxStamina);  //Update UI
                 StartCoroutine(Dash(dashTime));
             }
-        }
         if (sinceLastDrain < regenTime && !dashing)
-        {
             sinceLastDrain += Time.fixedDeltaTime;
-        }
         //Update dash light
         UIScript.SetDashLight(!dashing && stamina >= dashCost && !interrupt); //Takes a bool (hence all the comparisons)
-        
         //move character
         Animate_Direction();
         //Check secondary attack
         if (sAttack && !shield.activeSelf && !itemCooldown)
-        {
             Current_SAttack();
-        }
         if (pickup && !shield.activeSelf) 
-        {
             PickUp();
-        }
+        //check if you can shield...
+        if (stamina < shieldCost)
+            LowerShield();
     }
     //----------Secondary Attack----------//
     public void Current_SAttack() 
@@ -344,6 +335,7 @@ public class Player : LivingEntity
     }
     public void Throw_Bomb() 
     {
+        throwNoise.Play();
         //create distance between bomb spawn and location
         SetPosition(out Vector2 end, out _, tossRange);
         clone_throw.transform.parent = null;
@@ -367,6 +359,7 @@ public class Player : LivingEntity
                 if (hit.GetComponent<Throwable>())
                 {
                     hit.GetComponent<Throwable>().Pickup(bomb_spawn);
+                    hit.GetComponent<Throwable>().pickupSound.Play();
                     clone_throw = hit.gameObject;
                     secondaryAttack = Throw_Bomb;
                 }
@@ -416,8 +409,8 @@ public class Player : LivingEntity
         GameObject arrow = Instantiate(prefab_arrow, orientation, rotation, null);
         arrow.GetComponent<Projectile>().damage = bowDamage;
         arrow.GetComponent<Rigidbody2D>().velocity = (orientation-(Vector2)transform.position) * bowSpeed * 8f;
-        bowDamage = 1;
-        bowSpeed = 1f;
+        bowDamage = baseBowDamage;
+        bowSpeed = baseBowSpeed;
         moveSpeed = originalSpeed;
         attack_cancel = false;
 
@@ -548,6 +541,7 @@ public class Player : LivingEntity
         interrupt = true;
         invincible = true;
         dashPuffs.Play();
+        dashPuffs.gameObject.GetComponent<AudioSource>().Play();
         sinceLastDrain = 0f;
         Vector2 dashDir = gotoPoint.normalized; //So that controls don't affect the dash once it's started
         float count = 0;
@@ -587,6 +581,8 @@ public class Player : LivingEntity
                         hasHitWall = true;
                         this.body.velocity = Vector2.zero;
                         invincible = false; //We aren't invisible once we've stopped moving
+                        //audio
+                        stunnedSparkles.gameObject.GetComponent<AudioSource>().Play();
                     }
                     avg += (Point.point - (Vector2)this.transform.position);
                 }
@@ -616,14 +612,15 @@ public class Player : LivingEntity
     private IEnumerator Bow_Charge() 
     {
         float charge = 0f;
-        while (charge < timerCap) 
+        while (charge <= timerCap) 
         {
-            if (bowDamage <= bowDamageCap)
+            if (charge != 0f)
             {
-                Debug.Log($"bow damage: {bowDamage}, bow speed: {bowSpeed} , timer: {charge}");
+                bowChargeNoise.Play();
                 bowDamage++;
                 bowSpeed++;
             }
+            Debug.Log($"bow damage: {bowDamage}, bow speed: {bowSpeed} , timer: {charge}");
             charge++;
             yield return new WaitForSeconds(2 * timer);
         }

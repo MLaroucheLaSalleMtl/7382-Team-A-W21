@@ -13,6 +13,8 @@ public class GhostBoss : LivingEntity
     private bool ready = false;
     private bool moving;
     private const int HP_MAX = 10; //change if necesary...
+    private float delayPerShot;
+    private float duration;
     //----------Variable----------//
     [Header("Direction")]
     Vector2 movement;
@@ -148,6 +150,7 @@ public class GhostBoss : LivingEntity
     public override void Attack()
     {
         int result;
+        //float delay = (decision != StaticPattern_Flower) ? 0.2f : 0.45f;
         //add stuff in delegate here
         if (moving)
         {
@@ -156,17 +159,21 @@ public class GhostBoss : LivingEntity
             {
                 case 0:
                     decision = TargetAttack;
+                    delayPerShot = 0.2f;
                     break;
                 case 1:
                     decision = TargetSpiral;
+                    delayPerShot = 0.2f;
                     StartCoroutine(SpiralGimmick());
                     break;
                 default:
                     decision += TargetAttack;
                     decision += TargetSpiral;
+                    delayPerShot = 0.2f;
                     StartCoroutine(SpiralGimmick());
                     break;
             }
+            duration = 25f;
         }
         else
         {
@@ -177,15 +184,24 @@ public class GhostBoss : LivingEntity
             {
                 case 0:
                     decision = StaticPattern_Flower;
+                    delayPerShot = 0.45f;
                     break;
                 case 1:
                     decision = StaticPatern_CircleTrack;
+                    delayPerShot = 0.2f;
+                    break;
+                case 2:
+                    decision += StaticPattern_Flower;
+                    decision += TargetAttack;
+                    delayPerShot = 0.45f;
                     break;
                 default:
                     decision += StaticPatern_CircleTrack;
                     decision += TargetAttack;
+                    delayPerShot = 0.2f;
                     break;
             }
+            duration = 50f;
         }
     }
     public override void Hurt(int damage, Transform hitting)
@@ -212,12 +228,10 @@ public class GhostBoss : LivingEntity
     {
         Debug.Log((decision != StaticPattern_Flower && decision != TargetAttack));
         float count = 0;
-        float timer = (!moving) ? 50f : 25f;
-        float delay = (decision != StaticPattern_Flower) ? 0.2f : 0.45f;
         //add more to condition if there's more attack
-        while (count < timer)
+        while (count < duration)
         {
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delayPerShot);
             decision();
             count++;
         }
@@ -232,7 +246,6 @@ public class GhostBoss : LivingEntity
         {
             yield return new WaitForSeconds(2.5f);
             offset *= -1;
-            Debug.Log("ending loop");
         }
         offset = Mathf.Abs(offset);
         yield return null;

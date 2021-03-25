@@ -21,6 +21,7 @@ public class Spikes : MonoBehaviour
     public void InvertSpikes()
     {
         anim.SetBool("SpikesOn", !(anim.GetBool("SpikesOn")));  //Invert the bool value of SpikesOn
+        GetComponent<AudioSource>().Play();
     }
 
 }

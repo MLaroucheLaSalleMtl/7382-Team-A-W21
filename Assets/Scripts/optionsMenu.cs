@@ -34,7 +34,6 @@ public class optionsMenu : MonoBehaviour
         Resolution newRes = resolutions[resolutionList.value];
         Screen.SetResolution(newRes.width, newRes.height, Screen.fullScreenMode, newRes.refreshRate);
         GameManager.instance.ReturnToMain();
-        GameManager.instance.DisableMenu(gameObject, false);
     }
 
     public void changeSFX(float value)

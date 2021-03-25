@@ -17,6 +17,11 @@ public class BossGhostProjectile : Projectile
         //If we hit anything not enemy
         else if (!(collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))) 
         {
+            if (collision.collider.name == "Shield")
+            {
+                DrainStamina();
+                collision.collider.gameObject.GetComponent<AudioSource>().Play();
+            }
             gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             gameObject.SetActive(false);
         }
@@ -38,7 +43,7 @@ public class BossGhostProjectile : Projectile
     {
         yield return new WaitForSeconds(0.5f);
         shot.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        yield return new WaitForSeconds(4.75f);
+        yield return new WaitForSeconds(4.7f);
         shot.GetComponent<Rigidbody2D>().velocity = (manager.player.transform.position - gameObject.transform.position).normalized * shotspeed;
         yield return null;
     }

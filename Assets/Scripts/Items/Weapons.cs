@@ -7,6 +7,7 @@ public class Weapons : MonoBehaviour
     //debugging test
     public static int damage = 3;
     private const float timer = 2f;
+    [SerializeField] private AudioSource hitWallSound;
 
     // Start is called before the first frame update
     private void OnTriggerEnter2D(Collider2D collision)
@@ -27,6 +28,7 @@ public class Weapons : MonoBehaviour
         {
             //hit a rock or something / unbreakable (prob add push back)
             Debug.Log("hitting rock");
+            hitWallSound.Play();
         }
     }
     //Note: remember to remake the animation for attacking

@@ -7,14 +7,11 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance = null;
-    public Player player;                   //Reference to the player character
+    public static GameManager instance = null;  //Reference to the game manger
+    public Player player;                       //Reference to the player character
     [SerializeField] private GameObject[] dontDestroy;  //Objects that persist between scenes
-    private int dungeonsCleared = 0;
-    private bool cooldown = false;          //If the action has been performed recently (On cooldown)
-
-    //Values for pause and save features
-    private bool paused = false;
+    private bool cooldown = false;              //If the action has been performed recently (On cooldown)
+    private bool paused = false;                //If the game is paused
 
     //Values for displaying messages to the player (Images, text, buttons)
     [SerializeField] public GameObject hud;
@@ -32,6 +29,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text noteText;
     [SerializeField] Text menuText;
     public bool buttonPressed = false;
+
+    //Variables for audio
+    private AudioSource audioS;
+    [SerializeField] AudioClip audioObtainItem;
+    [SerializeField] AudioClip audioProgressText;
 
     //Make sure there's only one instance of GameManager
     private void Awake()
@@ -52,6 +54,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StopPlayerMove();
+        audioS = GetComponent<AudioSource>();
     }
 
     /////Menu Functions/////
@@ -69,36 +72,39 @@ public class GameManager : MonoBehaviour
     //Display options menu
     public void DisplayOptions()
     {
+        DisableMenu(mainMenu);
         EnableMenu(optionsMenu, btn_applyOptions);
-        if (mainMenu)
-            DisableMenu(mainMenu,false);
-        DisableMenu(pauseMenu,false);
     }
 
     public void ReturnToMain()
     {
+        DisableMenu(optionsMenu);
         EnableMenu(mainMenu, btn_newGame);
     }
 
     //Pause game
     public void Pause()
     {
-        if(paused)
+        Scene currentScene = SceneManager.GetActiveScene();
+        if (currentScene.buildIndex > 3 && currentScene.buildIndex < 15)
         {
-            Time.timeScale = 1f;                        //Unpause time
-            paused = false;
-            Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
-            Cursor.visible = false;
-            DisableMenu(pauseMenu);
-            StartPlayerMove();
-        }
-        else
-        {
-            Time.timeScale = 0f;                    //Pause time
-            paused = true;
-            Cursor.lockState = CursorLockMode.None; //Unlock and show cursor
-            Cursor.visible = true;
-            EnableMenu(pauseMenu, btn_resume);
+            if (paused)
+            {
+                Time.timeScale = 1f;                        //Unpause time
+                paused = false;
+                Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+                Cursor.visible = false;
+                DisableMenu(pauseMenu);
+                StartPlayerMove();
+            }
+            else
+            {
+                Time.timeScale = 0f;                    //Pause time
+                paused = true;
+                Cursor.lockState = CursorLockMode.None; //Unlock and show cursor
+                Cursor.visible = true;
+                EnableMenu(pauseMenu, btn_resume);
+            }
         }
     }
 
@@ -124,7 +130,7 @@ public class GameManager : MonoBehaviour
         switch (player.weaponLock)
         {
             case 1:                 //Shield
-                str += "a shield! \nHold left ctrl or left bumper to reflect enemy projectiles and defend against incoming damage.";
+                str += "a shield! \nHold space or left bumper to reflect enemy projectiles and defend against incoming damage.";
                 break;
             case 2:                 //Bombs
                 str += "bombs! \nPress the right mouse button or Y button on your controller to take out a bomb and then press it again to throw the bomb. \nYou can pick bombs back up with the E key or A button.";
@@ -161,6 +167,8 @@ public class GameManager : MonoBehaviour
     }
     public void EnableMenu(GameObject menu, Button defaultBtn)
     {
+        Debug.Log(menu);
+        Debug.Log(defaultBtn);
         menu.SetActive(true);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
         foreach (Button btn in buttons)
@@ -172,7 +180,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine("WaitForButton");
     }
 
-    public void DisableMenu(GameObject menu, bool cursorOff = true)
+    public void DisableMenu(GameObject menu)
     {
         menu.SetActive(false);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
@@ -180,11 +188,8 @@ public class GameManager : MonoBehaviour
             btn.enabled = false;
         //Reset currently selected button
         EventSystem.current.SetSelectedGameObject(null);
-        if (cursorOff == true)
-        {
-            Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
-            Cursor.visible = false;
-        }
+        Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+        Cursor.visible = false;
     }
 
     private void DisplayNote()
@@ -216,8 +221,10 @@ public class GameManager : MonoBehaviour
             else
                 yield return null;
         }
-        controlsMenu.SetActive(false);
-        if(mainMenu)
+        controlsMenu.SetActive(false);      //Hide controls menu
+        audioS.clip = audioProgressText;    //Play sound effect
+        audioS.Play();
+        if (mainMenu)
             EnableMenu(mainMenu, btn_newGame);
         else
             EnableMenu(pauseMenu, btn_resume);
@@ -252,6 +259,8 @@ public class GameManager : MonoBehaviour
         note.SetActive(false);
         StartCoroutine("SignCooldown");
         StartPlayerMove();
+        audioS.clip = audioProgressText;
+        audioS.Play();
     }
     //Coroutine waits for a menu button to be pressed on screen
     private IEnumerator WaitForButton()
@@ -286,6 +295,8 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         DisplayNote();
+        audioS.clip = audioObtainItem;  //Play item obtained sound effect
+        audioS.Play();
     }
     //Destroys the game manager and its children
     public void RemoveManager()
@@ -304,5 +315,11 @@ public class GameManager : MonoBehaviour
     {
         player.enabled = true;
         player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+    }
+
+    public void PlayButtonAudio()
+    {
+        audioS.clip = audioProgressText;
+        audioS.Play();
     }
 }

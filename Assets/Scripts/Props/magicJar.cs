@@ -29,6 +29,7 @@ public class magicJar : LivingEntity
         {
             broken = true;
             base.anim.SetBool("broken", true);
+            GetComponent<AudioSource>().Play();
             if (magicManager) magicManager.checkForSolve(); 
         }
     }

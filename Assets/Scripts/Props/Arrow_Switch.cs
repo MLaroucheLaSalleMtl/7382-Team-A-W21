@@ -21,6 +21,7 @@ public class Arrow_Switch : MonoBehaviour
         {
             open = true;
             anim.SetBool("switch", true);
+            GetComponent<AudioSource>().Play();
             if (multiple)
                 Invoke("SettingBack", timer);
         }

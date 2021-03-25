@@ -9,6 +9,7 @@ public class Projectile : MonoBehaviour
     private LivingEntity entity;
     private Vector2 startVelocity;  //Velocity when first fired
     protected GameManager manager;
+    protected int drainAmount = 2; // didn't use constant, because if other projectile could have more drain etc...
 
     private void Start()
     {
@@ -26,6 +27,8 @@ public class Projectile : MonoBehaviour
         {
             this.gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
             rigid.velocity = (Vector2.Reflect(startVelocity, collision.GetContact(0).normal));  //Reflect projectile off shield
+            DrainStamina();
+            collision.collider.gameObject.GetComponent<AudioSource>().Play();
         }
         //If we hit the player or an enemy
         else if (entity = collision.collider.GetComponent<LivingEntity>())
@@ -46,5 +49,18 @@ public class Projectile : MonoBehaviour
         {
             manager.player.GetComponent<Player>().Mystery_Split();
         }
+    }
+    //Drain
+    protected void DrainStamina() 
+    {
+        if (manager.player.stamina >= drainAmount)
+        {
+            manager.player.stamina -= drainAmount;
+        }
+        else 
+        {
+            manager.player.stamina = 0;
+        }
+        manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Stamina, manager.player.stamina, manager.player.maxStamina);
     }
 }

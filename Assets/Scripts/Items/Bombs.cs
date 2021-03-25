@@ -8,8 +8,10 @@ public class Bombs : Throwable
     [SerializeField] protected const float timer = 5f;
     [SerializeField] protected LayerMask mask;
     [SerializeField] private GameObject puff;
+    //audio
     private void Start()
     {
+        base.Start();
         Invoke("Hit", timer);
     }
     public void Hit()
@@ -36,6 +38,7 @@ public class Bombs : Throwable
         }
         //play animation and then destroy this object
         puff.GetComponent<ParticleSystem>().Play();
+        puff.GetComponent<AudioSource>().Play();
         puff.transform.parent = null;
         gameObject.SetActive(false);
         Destroy(gameObject, timer);

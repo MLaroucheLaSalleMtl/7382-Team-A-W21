@@ -12,11 +12,14 @@ public class Throwable : MonoBehaviour
     protected bool hit = false;
     protected bool destination_reached = false;
     private GameManager manager;
+    [HideInInspector]public AudioSource pickupSound;
+    [SerializeField] protected AudioSource wallHitSound;
     public bool Thrown { get => thrown; }
 
-    private void Start()
+    protected void Start()
     {
         manager = GameManager.instance;
+        pickupSound = GetComponent<AudioSource>();
     }
     public void Pickup(Transform head) 
     {
@@ -38,6 +41,8 @@ public class Throwable : MonoBehaviour
                 //get current object's position
                 end = transform.position;
                 currentLocal = 0.9f;
+                //play audio
+                wallHitSound.Play();
             }
             //10% of the way to destination player can collide with it
             if (currentLocal > 0.1f)
@@ -52,6 +57,7 @@ public class Throwable : MonoBehaviour
     protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Generic object thrown");
+        //add audio here
     }
 
 }
