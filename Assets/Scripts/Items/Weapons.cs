@@ -8,28 +8,29 @@ public class Weapons : MonoBehaviour
     public static int damage = 3;
     private const float timer = 2f;
     [SerializeField] private AudioSource hitWallSound;
-
+    private GameManager manager;
     // Start is called before the first frame update
+    private void Start()
+    {
+        manager = GameManager.instance;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 9 || collision.gameObject.layer == 8)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Level") || collision.gameObject.layer == LayerMask.NameToLayer("Interactable"))
         {
-            collision.GetComponent<LivingEntity>().Hurt(damage, gameObject.transform.parent.transform);
-        }
-        else if (collision.CompareTag("Breakable"))
-        {
-            //the and can be removed just wanted to be double sure it's an interactable layer
-            //play animation
-
-            //destroy
-            Destroy(collision.gameObject,timer);
-        }
-        else
-        {
+            Debug.Log("Hit");
             //hit a rock or something / unbreakable (prob add push back)
-            Debug.Log("hitting rock");
             hitWallSound.Play();
+            manager.player.Hurt(0, transform);
+        }
+        else if (collision.gameObject.CompareTag("Breakable"))
+        {
+            Destroy(collision.gameObject, timer);
+        }
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            collision.gameObject.GetComponent<LivingEntity>().Hurt(damage, transform.parent);
         }
     }
-    //Note: remember to remake the animation for attacking
 }

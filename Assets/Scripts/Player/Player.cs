@@ -74,6 +74,7 @@ public class Player : LivingEntity
     private SecondaryAttack secondaryAttack;
     public SecondaryAttack SecondaryAttack1 { get => secondaryAttack; set => secondaryAttack = value; }
     //Bow
+    [SerializeField] private ChargeBar bowChargeImage;
     [SerializeField] private GameObject prefab_arrow;
     [SerializeField] private int bowDamage;
     [SerializeField] private float bowSpeed; // multiplier
@@ -113,7 +114,8 @@ public class Player : LivingEntity
     }
     public void OnAttack(InputAction.CallbackContext context) 
     {
-        attacking = context.performed;
+        if(!attack_cancel)
+            attacking = context.performed;
     }
     public void OnDefend(InputAction.CallbackContext context)
     {
@@ -303,7 +305,6 @@ public class Player : LivingEntity
     //----------Secondary Attack----------//
     public void Current_SAttack() 
     {
-        //if player is in the bomb weapon slot
         switch (slot) 
         {
             case WeaponSlot.Bomb:
@@ -329,6 +330,7 @@ public class Player : LivingEntity
     //----------Bomb----------//
     public void Spawn_Bomb() 
     {
+        //check if the player attacked
         clone_throw = Instantiate(prefab_bomb, bomb_spawn);
         secondaryAttack = Throw_Bomb;
         sAttack = false;
@@ -397,6 +399,8 @@ public class Player : LivingEntity
     }
     public void ShootBow() 
     {
+        bowChargeImage.ToggleCharge();
+        CancelInvoke("ShootBow");
         if (bowCharge != null)
         {
             StopCoroutine(bowCharge);
@@ -529,9 +533,10 @@ public class Player : LivingEntity
         {
             interrupt = true;
             body.velocity = Vector2.zero;
-            yield return new WaitForSeconds(timer);
-            
+            attack_cancel = true;
+            yield return new WaitForSeconds(timer * 0.5f); // had it halfed, because animation was too fast
         }
+        attack_cancel = false;
         attack_cooldown = null;
         interrupt = false;
     }
@@ -612,6 +617,7 @@ public class Player : LivingEntity
     private IEnumerator Bow_Charge() 
     {
         float charge = 0f;
+        bowChargeImage.ToggleCharge();
         while (charge <= timerCap) 
         {
             if (charge != 0f)
@@ -621,9 +627,10 @@ public class Player : LivingEntity
                 bowSpeed++;
             }
             Debug.Log($"bow damage: {bowDamage}, bow speed: {bowSpeed} , timer: {charge}");
-            charge++;
-            yield return new WaitForSeconds(2 * timer);
+            bowChargeImage.SetValue(charge++, timerCap);
+            yield return new WaitForSeconds(timer);
         }
+        Invoke("ShootBow", timer);
         bowCharge = null;
     }
 }

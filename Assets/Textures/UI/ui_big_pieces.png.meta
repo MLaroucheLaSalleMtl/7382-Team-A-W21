@@ -44,6 +44,18 @@ TextureImporter:
   - first:
       213: -2602719629936617034
     second: quickSwap_3_lit
+  - first:
+      213: -6199038459382955622
+    second: ui_chargebar_start
+  - first:
+      213: -7032989934493272078
+    second: ui_chargebar_end
+  - first:
+      213: -8344959835893814994
+    second: ui_chargebar_empty
+  - first:
+      213: -49483812285461665
+    second: ui_chargebar_fill
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -446,6 +458,90 @@ TextureImporter:
       bones: []
       spriteID: 6b911bf494841ebd0800000000000000
       internalID: -2602719629936617034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_chargebar_start
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 508
+        width: 9
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a918e777d5798f9a0800000000000000
+      internalID: -6199038459382955622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_chargebar_end
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 508
+        width: 9
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f771adbaecc56e90800000000000000
+      internalID: -7032989934493272078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_chargebar_empty
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 510
+        width: 8
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 2, y: 0, z: 2, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e29a5a42e3fb03c80800000000000000
+      internalID: -8344959835893814994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_chargebar_fill
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 498
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 2, y: 0, z: 2, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f5bc7922cb2305ff0800000000000000
+      internalID: -49483812285461665
       vertices: []
       indices: 
       edges: []

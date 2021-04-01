@@ -45,7 +45,7 @@ SpriteAtlas:
     packables:
     - {fileID: 102900000, guid: 3585c2b05c0cda5408ea813f08c57292, type: 3}
     - {fileID: 102900000, guid: 9a4e135ad53751349862e566406c6269, type: 3}
-    totalSpriteSurfaceArea: 1233569
+    totalSpriteSurfaceArea: 1236641
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -69,6 +69,18 @@ SpriteAtlas:
   - {fileID: 9038146427250128068, guid: 124edc400e6080444ac1ac14db79da4d, type: 3}
   - {fileID: -2642081817437837836, guid: 124edc400e6080444ac1ac14db79da4d, type: 3}
   - {fileID: -7408231799520036704, guid: 124edc400e6080444ac1ac14db79da4d, type: 3}
+  - {fileID: -6228264055473489069, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 2210031467599594543, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 8568533383453620722, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: -2484061041077881402, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 4961535783205277091, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 8668479809385966983, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 1684231880474465791, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: -6129555284059238190, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 1913691560386898966, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 8706739898017176512, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 1390649450147304155, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
+  - {fileID: 7919737262799481442, guid: 453a8950ee1bbe94b80d5ac5ac27313e, type: 3}
   - {fileID: -9187231797010069051, guid: 9b529862ee7b0df41851278b8c8a27fd, type: 3}
   - {fileID: -3460217500893350510, guid: 9b529862ee7b0df41851278b8c8a27fd, type: 3}
   - {fileID: 3189869246120463915, guid: 9b529862ee7b0df41851278b8c8a27fd, type: 3}
@@ -525,6 +537,18 @@ SpriteAtlas:
   - firstdungeontiles_17
   - firstdungeontiles_14
   - firstdungeontiles_15
+  - goldfireplace_10
+  - goldfireplace_11
+  - goldfireplace_3
+  - goldfireplace_2
+  - goldfireplace_1
+  - goldfireplace_0
+  - goldfireplace_7
+  - goldfireplace_6
+  - goldfireplace_5
+  - goldfireplace_4
+  - goldfireplace_9
+  - goldfireplace_8
   - pathtiles_4
   - pathtiles_5
   - pathtiles_6

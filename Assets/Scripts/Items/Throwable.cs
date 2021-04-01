@@ -37,7 +37,6 @@ public class Throwable : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 1f, wallDetect);
             if (hit)
             {
-                Debug.Log(hit.collider.name);
                 //get current object's position
                 end = transform.position;
                 currentLocal = 0.9f;

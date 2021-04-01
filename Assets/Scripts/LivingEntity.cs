@@ -24,7 +24,7 @@ public class LivingEntity : MonoBehaviour
     protected int attack_damage;
     [HideInInspector] public Vector2 gotoPoint;     //Where to walk to
     protected bool interrupt = false;               //Pauses follow/roaming AI behaviour
-    protected const float timer = 0.5f;
+    protected const float timer = 1f;
     IEnumerator knockback;
     protected bool invincible = false;
     protected Renderer myRenderer;
@@ -111,9 +111,6 @@ public class LivingEntity : MonoBehaviour
             knockback = KnockBackCoolDown();
             StartCoroutine(knockback);
         }
-        //Debug.Log($"current distance : {body.velocity}");
-        Debug.Log("current HP: " + this.hp);
-
     }
     protected virtual void Death() 
     {
@@ -154,7 +151,6 @@ public class LivingEntity : MonoBehaviour
 
     public IEnumerator invFrames(int seconds)
     {
-        Debug.Log("Invince");
         int count = 0;
         invincible = true;
         while (count < seconds * 10)

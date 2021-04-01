@@ -51,7 +51,6 @@ public class BaseEnemyAI : LivingEntity
     //Unity Messages
     public void Start()
     {
-        Debug.Log("Enemy start");
         base.Start();
         rigid = GetComponent<Rigidbody2D>();        //Retrieve our rigid body
         target = manager.player.transform;          //Set player as our target
@@ -140,7 +139,6 @@ public class BaseEnemyAI : LivingEntity
             if(timeSinceMove > 1)
             {
                 pickPoint();
-                Debug.Log("Got Stuck!");
             }
         }
         else
@@ -261,7 +259,6 @@ public class BaseEnemyAI : LivingEntity
             if (playerHit == null) { } //If we hit nothing
             else if (manager.player.stamina <= 0 || playerHit.gameObject == manager.player.gameObject) //If enemy hits the player or player is out of stamina
             {
-                Debug.Log(playerHit);
                 manager.player.Hurt(attack_damage, this.gameObject.transform);  //Deal damage to player
                 StartCoroutine(AtkCooldownCoroutine());                         //Start attack cooldown
             }

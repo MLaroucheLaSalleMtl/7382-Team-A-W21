@@ -32,10 +32,16 @@ public class StartGame : MonoBehaviour
     {
         PrepStart();
         int i = PlayerPrefs.GetInt("Level", 3);     //Read save game data from the registry
-        if (i > 6)
-            manager.player.InteractionAdd();        //Add shield
-        if (i > 10)
-            manager.player.InteractionAdd();        //Add bombs
+        int check = PlayerPrefs.GetInt("Checkpoint", 0);
+        if (i > 6 || (i == 5 && check > 0))          //1st dungeon - Add shield
+            manager.player.InteractionAdd();        
+        if (i > 10 || (i == 9 && check > 0))         //Second dungeon - Add bombs
+            manager.player.InteractionAdd();        
+        if(i == 13 && check > 0)                       //Third dungeon - Add bow and wand
+        {
+            manager.player.InteractionAdd();        
+            manager.player.InteractionAdd();        
+        }
         async = SceneManager.LoadSceneAsync(i);     //Load saved scene
         async.allowSceneActivation = false;         //Wait to switch to next scene
     }

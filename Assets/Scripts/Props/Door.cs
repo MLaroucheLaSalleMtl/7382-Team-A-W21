@@ -11,16 +11,10 @@ public class Door : Interactable
     [SerializeField] private Arrow_Switch[] switches; //used for switches, different from enemies
 
     //Variables for audio
-    private AudioSource audioS;
     [SerializeField] AudioClip audioOpening;
     [SerializeField] AudioClip audioClosing;
     [SerializeField] AudioClip audioLocked;
     [SerializeField] AudioClip audioRoomCleared;
-    
-    private void Start()
-    {
-        audioS = GetComponent<AudioSource>();
-    }
 
     public override void Interaction()
     {

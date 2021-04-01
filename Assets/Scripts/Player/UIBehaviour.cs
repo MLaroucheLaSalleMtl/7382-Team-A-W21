@@ -82,7 +82,6 @@ public class UIBehaviour : MonoBehaviour
     
     public void UpdateIcons(int item)
     {
-        Debug.Log(item);
         if (item-2 >= 0)
         {
             for (int i = 0; i < 3; i++)

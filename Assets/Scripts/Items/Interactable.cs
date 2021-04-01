@@ -10,11 +10,13 @@ public class Interactable : MonoBehaviour
     private GameManager manager;
     private CapsuleCollider2D open;
     protected Animator anim;
+    protected AudioSource audioS;
 
     private void Awake()
     {
         open = GetComponent<CapsuleCollider2D>();
         anim = GetComponent<Animator>();
+        audioS = GetComponent<AudioSource>();
     }
     private void Start()
     {

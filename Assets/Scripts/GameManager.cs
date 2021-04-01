@@ -167,8 +167,6 @@ public class GameManager : MonoBehaviour
     }
     public void EnableMenu(GameObject menu, Button defaultBtn)
     {
-        Debug.Log(menu);
-        Debug.Log(defaultBtn);
         menu.SetActive(true);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
         foreach (Button btn in buttons)

@@ -26,5 +26,7 @@ public class DungeonSelector : MonoBehaviour
                 doors[2].locked = false;
                 break;
         }
+        PlayerPrefs.SetInt("Checkpoint", 0);   //Reset checkpoint in RAM
+        PlayerPrefs.Save();                    //Save the data to the disk
     }
 }
