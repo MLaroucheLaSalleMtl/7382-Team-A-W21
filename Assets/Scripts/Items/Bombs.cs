@@ -43,17 +43,18 @@ public class Bombs : Throwable
         gameObject.SetActive(false);
         Destroy(gameObject, timer);
     }
-    protected override void OnTriggerEnter2D(Collider2D collision)
+
+    protected override void OnCollisionEnter2D(Collision2D collision)
     {
-        //if you want to have it hit interactable and also explode on impact put ||
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy") && thrown && !destination_reached)
+        base.OnCollisionEnter2D(collision);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy") && !destination_reached && thrown)
         {
-            hit = true;
             CancelInvoke("Hit");
             Hit();
         }
     }
     //on contact
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

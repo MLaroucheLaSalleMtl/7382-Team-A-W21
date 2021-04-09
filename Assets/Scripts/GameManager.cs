@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameObject hud;
     [SerializeField] private GameObject sign;
     [SerializeField] private GameObject note;
+    [SerializeField] public GameObject obscure;
     [SerializeField] public GameObject mainMenu;
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private GameObject controlsMenu;
@@ -86,7 +87,7 @@ public class GameManager : MonoBehaviour
     public void Pause()
     {
         Scene currentScene = SceneManager.GetActiveScene();
-        if (currentScene.buildIndex > 3 && currentScene.buildIndex < 15)
+        if (currentScene.buildIndex > 3 && currentScene.buildIndex < 15 && player.hp > 0)
         {
             if (paused)
             {
@@ -130,7 +131,7 @@ public class GameManager : MonoBehaviour
         switch (player.weaponLock)
         {
             case 1:                 //Shield
-                str += "a shield! \nHold space or left bumper to reflect enemy projectiles and defend against incoming damage.";
+                str += "a shield! \nHold space or left bumper to reflect enemy projectiles. Reflecting projectiles drains stamina.";
                 break;
             case 2:                 //Bombs
                 str += "bombs! \nPress the right mouse button or Y button on your controller to take out a bomb and then press it again to throw the bomb. \nYou can pick bombs back up with the E key or A button.";

@@ -11,12 +11,13 @@ public class AutoLoadScene : MonoBehaviour
     void Start()
     {
         Scene currentScene = SceneManager.GetActiveScene();
-        if (currentScene.buildIndex >= 3)    //If the player has already entered the first dungeon
+        if (currentScene.buildIndex >= 3)                           //If the player has entered the game
         {
             PlayerPrefs.SetInt("Level", currentScene.buildIndex);   //Save current scene index in RAM
             PlayerPrefs.Save();                                     //Save the data to the disk
         }
         async = SceneManager.LoadSceneAsync(currentScene.buildIndex + 1);   //Load the next scene
+        async.allowSceneActivation = false;                                 //Wait to switch to next scene
     }
 
     private void Update()

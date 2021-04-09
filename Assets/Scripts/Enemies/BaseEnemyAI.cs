@@ -250,6 +250,8 @@ public class BaseEnemyAI : LivingEntity
     //Enemy melee attack
     protected void MeleeAttack()
     {
+        if (this.hp <= 0)   //Enemy can not attack if dead
+            return;
         layerMask = LayerMask.GetMask("Shield");    
         playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
         if (playerHit == null)  //If enemy didn't hit shield

@@ -6,7 +6,7 @@ public class MagicJarManager : MonoBehaviour
 {
     public List<magicJar> jars;
     [SerializeField] private List<bool> solution;
-    [SerializeField] private Door exitSolve;
+    [SerializeField] private List<Door> exitSolve;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,7 +32,11 @@ public class MagicJarManager : MonoBehaviour
         }
         if (solved)
         {
-            if (exitSolve) exitSolve.OpenDoor();
+            GetComponent<AudioSource>().Play();
+            foreach( Door exit in exitSolve)
+            {
+                exit.OpenDoor();
+            }
         }
         else
         {

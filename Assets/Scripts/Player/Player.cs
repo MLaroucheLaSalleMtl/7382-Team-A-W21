@@ -160,7 +160,7 @@ public class Player : LivingEntity
     public void OnWeaponSwap(InputAction.CallbackContext context) 
     {
         float input = context.ReadValue<float>();
-        if (weaponLock > 0 && !attack_cancel && bomb_spawn.childCount < 1)
+        if (weaponLock > 1 && !attack_cancel && bomb_spawn.childCount < 1)
             if (input > 0)
                 slot = (slot > WeaponSlot.Bomb) ? --slot : (WeaponSlot)weaponLock;
             else if (input < 0)
@@ -324,7 +324,8 @@ public class Player : LivingEntity
     {
         weaponLock++;
         slot = (WeaponSlot) weaponLock;
-        UIScript.UpdateIcons(weaponLock);
+        if(UIScript)
+            UIScript.UpdateIcons(weaponLock);
     }
 
     //----------Bomb----------//
@@ -341,7 +342,7 @@ public class Player : LivingEntity
         //create distance between bomb spawn and location
         SetPosition(out Vector2 end, out _, tossRange);
         clone_throw.transform.parent = null;
-        StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn, end));
+        StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn.position, end));
         secondaryAttack = null;
         sAttack = false;
         StartCoroutine(ItemCooldown());
@@ -478,7 +479,6 @@ public class Player : LivingEntity
     {
         if (!this.invincible && this.hp > 0 && !dashing) 
         {
-            anim.SetTrigger("Hurt");
             base.Hurt(damage, hitting);
             if (damage > 0)
                 StartCoroutine(invFrames(1));
@@ -534,7 +534,7 @@ public class Player : LivingEntity
             interrupt = true;
             body.velocity = Vector2.zero;
             attack_cancel = true;
-            yield return new WaitForSeconds(timer * 0.5f); // had it halfed, because animation was too fast
+            yield return new WaitForSeconds(timer); // had it halfed, because animation was too fast
         }
         attack_cancel = false;
         attack_cooldown = null;

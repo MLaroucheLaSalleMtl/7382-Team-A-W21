@@ -7,11 +7,11 @@ public class Throwable : MonoBehaviour
     //working on it with more detail after the bomb this is for things like pots and rocks etc...
     [SerializeField] protected float radius = 1.5f;
     [SerializeField] protected int damage = 2;
-    [SerializeField] protected LayerMask wallDetect;
     protected bool thrown = false;
-    protected bool hit = false;
     protected bool destination_reached = false;
+    private const int tossSpeed = 15;
     private GameManager manager;
+    protected Rigidbody2D body;
     [HideInInspector]public AudioSource pickupSound;
     [SerializeField] protected AudioSource wallHitSound;
     public bool Thrown { get => thrown; }
@@ -20,43 +20,53 @@ public class Throwable : MonoBehaviour
     {
         manager = GameManager.instance;
         pickupSound = GetComponent<AudioSource>();
+        body = GetComponent<Rigidbody2D>();
     }
     public void Pickup(Transform head) 
     {
         thrown = false;
-        gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
+        destination_reached = false;
+        body.bodyType = RigidbodyType2D.Kinematic;
+        gameObject.layer = LayerMask.NameToLayer("Bomb");
         this.gameObject.transform.position = head.position;
         this.gameObject.transform.parent = head;
     }
-    public IEnumerator Tossed(Transform start, Vector2 end)
+    public IEnumerator Tossed(Vector2 start, Vector2 end)
     {
         this.thrown = true;
-        float currentLocal = 0.0f;
-        while (currentLocal < 1 && !hit)
+        Vector2 distance = (end - start);
+        body.velocity = distance.normalized * tossSpeed;
+        body.isKinematic = false;
+        gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
+        while (!destination_reached && gameObject.activeSelf)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, end.normalized, 1f, wallDetect);
-            if (hit)
+            //check distance
+            Debug.Log(Vector2.Distance(transform.position, end));
+            if (Vector2.Distance(transform.position, end) < 0.11f) //needs to be 0.11, due to how fixed update works
             {
-                //get current object's position
-                end = transform.position;
-                currentLocal = 0.9f;
-                //play audio
-                wallHitSound.Play();
-            }
-            //10% of the way to destination player can collide with it
-            if (currentLocal > 0.1f)
+                transform.position = end;
+                body.velocity = Vector2.zero;
                 gameObject.layer = LayerMask.NameToLayer("Default");
-            transform.position = Vector2.Lerp(start.position, end, currentLocal);
-            currentLocal += 0.05f;
-            yield return new WaitForSeconds(0.01f);
+                destination_reached = true;
+            }
+            yield return new WaitForFixedUpdate();
         }
-        destination_reached = true;
         yield return null;
     }
-    protected virtual void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Generic object thrown");
-        //add audio here
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Level"))
+        {
+            //check if the player is looking a wall
+            //RaycastHit2D hit = Physics2D.Raycast(manager.player.transform.position,)
+            wallHitSound.Play();
+            body.velocity = Vector2.zero;
+            destination_reached = true;
+        }
+        else if (!(collision.gameObject.layer == LayerMask.NameToLayer("Enemy")))
+            body.bodyType = RigidbodyType2D.Static;
+        gameObject.layer = LayerMask.NameToLayer("Default");
+        
     }
 
 }

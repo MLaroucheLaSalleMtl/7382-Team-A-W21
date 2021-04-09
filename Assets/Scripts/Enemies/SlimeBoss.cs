@@ -6,7 +6,7 @@ public class SlimeBoss : BaseEnemyAI
 {
 
     [SerializeField] private GameObject minion;
-    [SerializeField] private Door exitDoor;
+    [SerializeField] private List<Door> exitDoors;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +34,10 @@ public class SlimeBoss : BaseEnemyAI
 
                 StartCoroutine(invFrames(2));
                 GameObject newBlob = Instantiate(minion, this.transform.position, new Quaternion(), null);
-                exitDoor.enemies.Add(newBlob);
+                foreach(Door exit in exitDoors)
+                {
+                    exit.enemies.Add(newBlob);
+                }
                 LivingEntity ent = newBlob.GetComponent<LivingEntity>();
                 ent.Start();
                 ent.StartCoroutine(ent.invFrames(1));

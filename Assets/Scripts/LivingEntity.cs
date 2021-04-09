@@ -24,8 +24,8 @@ public class LivingEntity : MonoBehaviour
     protected int attack_damage;
     [HideInInspector] public Vector2 gotoPoint;     //Where to walk to
     protected bool interrupt = false;               //Pauses follow/roaming AI behaviour
-    protected const float timer = 1f;
-    IEnumerator knockback;
+    protected const float timer = 0.5f;
+    protected IEnumerator knockback;
     protected bool invincible = false;
     protected Renderer myRenderer;
     protected float moveSpeed = 3;

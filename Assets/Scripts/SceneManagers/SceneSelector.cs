@@ -12,10 +12,12 @@ public class SceneSelector : MonoBehaviour
     {
         if(collision.gameObject.GetComponent<Player>())
         {
+            GameManager.instance.obscure.SetActive(true);
             Scene currentScene = SceneManager.GetActiveScene();
-            if(currentScene.buildIndex < 14)                        //Remove manager + player before ending cutscene
+            if(currentScene.buildIndex < 14)                                    //Remove manager & player before ending cutscene
                 DontDestroyOnLoad(GameManager.instance.gameObject);
             async = SceneManager.LoadSceneAsync(currentScene.buildIndex + 1);   //Load the next scene
+            async.allowSceneActivation = false;                                 //Wait to switch to next scene
         }
     }
 
