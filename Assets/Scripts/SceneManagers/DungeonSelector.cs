@@ -21,7 +21,7 @@ public class DungeonSelector : MonoBehaviour
             case 1:
                 doors[1].locked = false;
                 break;
-            //Player has found 2 items (+bomb) -> Unlock third dungeon
+            //Player has found 2 items (shield + bomb) -> Unlock third dungeon
             case 2:
                 doors[2].locked = false;
                 break;

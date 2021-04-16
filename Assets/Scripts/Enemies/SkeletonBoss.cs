@@ -23,9 +23,10 @@ public class SkeletonBoss : BaseEnemyAI
     {
         RangedAttack();
     }
+
     public override void Hurt(int damage, Transform hitting)
     {
         base.Hurt(damage, hitting);
-        manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, MAX_HP); //UPDATE UI
+        manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, MAX_HP); //Update UI
     }
 }

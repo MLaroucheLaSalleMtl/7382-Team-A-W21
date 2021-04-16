@@ -12,7 +12,7 @@ public class SceneSelector : MonoBehaviour
     {
         if(collision.gameObject.GetComponent<Player>())
         {
-            GameManager.instance.obscure.SetActive(true);
+            GameManager.instance.obscure.SetActive(true);                       //Hide player while in loading screen
             Scene currentScene = SceneManager.GetActiveScene();
             if(currentScene.buildIndex < 14)                                    //Remove manager & player before ending cutscene
                 DontDestroyOnLoad(GameManager.instance.gameObject);

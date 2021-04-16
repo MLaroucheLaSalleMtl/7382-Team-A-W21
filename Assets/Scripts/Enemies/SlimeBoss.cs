@@ -31,7 +31,6 @@ public class SlimeBoss : BaseEnemyAI
                 this.Death();
             else
             {
-
                 StartCoroutine(invFrames(2));
                 GameObject newBlob = Instantiate(minion, this.transform.position, new Quaternion(), null);
                 foreach(Door exit in exitDoors)
@@ -44,9 +43,9 @@ public class SlimeBoss : BaseEnemyAI
                 ent.hp = 1;
                 manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Boss, hp, 6); //UPDATE UI
             }
-            
         }
     }
+
     public override void Attack()
     {
         MeleeAttack();

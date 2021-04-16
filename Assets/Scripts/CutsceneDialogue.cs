@@ -16,7 +16,6 @@ public class CutsceneDialogue : MonoBehaviour
 
     private void Start()
     {
-        
         if (manager = GameManager.instance)
             if (manager.player)
                 manager.StopPlayerMove();
@@ -24,6 +23,7 @@ public class CutsceneDialogue : MonoBehaviour
         Cursor.visible = false;
     }
 
+    //Prints next line of cutscene dialogue on screen
     public void ProgressDialogue()
     {
         switch(currentText)
@@ -64,11 +64,11 @@ public class CutsceneDialogue : MonoBehaviour
                 EnableMenu();
                 break;
         }
-        GetComponent<AudioSource>().Play();
-        if (currentText < DIALOGUE_OPTIONS) //If there's more dialogue to print
+        GetComponent<AudioSource>().Play();     //Play sound effect
+        if (currentText < DIALOGUE_OPTIONS)     //If there's more dialogue to print
         {
             currentText++;
-            StartCoroutine(WaitForKey());
+            StartCoroutine(WaitForKey());       
         }
     }
 
@@ -77,14 +77,12 @@ public class CutsceneDialogue : MonoBehaviour
     {
         bool unpressed = false;
         float delay = 0.3f;
-        //Wait 0.3 seconds
-        while (delay > 0)
+        while (delay > 0)   //Wait 0.3 seconds
         {
             delay -= Time.deltaTime;
             yield return null;
         }
-        //Wait for key press
-        while (true)
+        while (true)                    //Wait for key press
         {
             if (!Input.anyKeyDown)      //Make sure key press doesn't trigger twice in one frame
             {
@@ -96,19 +94,18 @@ public class CutsceneDialogue : MonoBehaviour
             else
                 yield return null;
         }
-        
         ProgressDialogue();
     }
-    //Enable the end game menu
+
+    //Enables the end game menu
     public void EnableMenu()
     {
         victoryMenu.SetActive(true);
         Button[] buttons = victoryMenu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)
+        foreach (Button btn in buttons)             //Enable the buttons
             btn.enabled = true;
-        //Select first button (for keyboard/gamepad)
-        EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);
-        Cursor.lockState = CursorLockMode.None;   //Unlock and show cursor
+        EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);     //Select first button 
+        Cursor.lockState = CursorLockMode.None;     //Unlock and show cursor
         Cursor.visible = true;
     }
 }

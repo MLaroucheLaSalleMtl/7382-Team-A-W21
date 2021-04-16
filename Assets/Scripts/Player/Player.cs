@@ -31,6 +31,8 @@ public class Player : LivingEntity
     public int stamina = 20;
     public int dashCost = 5;
     public int shieldCost = 5;
+    private readonly Vector2 originalSize = new Vector2(0.525f, 0.86f);
+    private CapsuleCollider2D bodySize; // used for bombs
     [Tooltip("How long before regend")] public float regenTime = 1.5f;
     [Tooltip("How long between each point regenerated")] public float regenSpeed = 0.5f;
 
@@ -99,27 +101,32 @@ public class Player : LivingEntity
     //----------debug----------//
 
     //----------Input System----------//
-    public void OnMove(InputAction.CallbackContext context) 
+    public void OnMove(InputAction.CallbackContext context)
     {
 
         this.gotoPoint = context.ReadValue<Vector2>();
     }
+    //***This function was written by Simon
     public void OnDash(InputAction.CallbackContext context)
     {
         if (context.started) this.dashing = true;
     }
+    //***This function was written by Yan
     public void OnInteract(InputAction.CallbackContext context) 
     {
         interact = context.performed;
     }
+    //***This function was written by Yan
     public void OnAttack(InputAction.CallbackContext context) 
     {
         if(!attack_cancel)
             attacking = context.performed;
     }
+    //***This function was written by Nicky
     public void OnDefend(InputAction.CallbackContext context)
     {
-        if (slot > 0 && (clone_throw == null || clone_throw.transform.parent == null) && attack_cooldown == null)
+        //If player has shield and isn't attacking or throwing a bomb
+        if (slot > 0  && attack_cooldown == null && (clone_throw == null || clone_throw.transform.parent == null))
         {
             if (context.started)
                 RaiseShield();
@@ -127,35 +134,40 @@ public class Player : LivingEntity
                 LowerShield();
         }
     }
+    //***This function was written by Nicky
     public void OnPause(InputAction.CallbackContext context)
     {
         if (context.started)
             manager.Pause();
     }
+    
+    //***This function was written by Yan
     public void OnSecondary_Attack(InputAction.CallbackContext context) 
     {
-        switch (slot)
-        {
-            case WeaponSlot.Bow:
-                if (!shield.activeSelf && attack_cooldown == null && !itemCooldown)
-                {
-                    if (context.started)
-                        ChargeBow();
-                    if (context.canceled && secondaryAttack == ChargeBow)
-                        ShootBow();
-                }
-                break;
-            case WeaponSlot.Bomb:
-            case WeaponSlot.Mystery:
-                sAttack = context.performed;
-                break;
-        }
-        
+        if(!anim.GetBool("Stunned"))
+            switch (slot)
+            {
+                case WeaponSlot.Bow:
+                    if (!shield.activeSelf && attack_cooldown == null && !itemCooldown)
+                    {
+                        if (context.started)
+                            ChargeBow();
+                        if (context.canceled && secondaryAttack == ChargeBow)
+                            ShootBow();
+                    }
+                    break;
+                case WeaponSlot.Bomb:
+                case WeaponSlot.Mystery:
+                    sAttack = context.performed;
+                    break;
+            }
     }
+    //***This function was written by Yan
     public void OnPickup(InputAction.CallbackContext context) 
     {
         pickup = context.performed;
     }
+    //***This function was written by Yan
     //----------Swap----------//
     public void OnWeaponSwap(InputAction.CallbackContext context) 
     {
@@ -165,14 +177,17 @@ public class Player : LivingEntity
                 slot = (slot > WeaponSlot.Bomb) ? --slot : (WeaponSlot)weaponLock;
             else if (input < 0)
                 slot = ((int)slot < weaponLock) ? ++slot : WeaponSlot.Bomb;
+        UIScript.UpdateIcons(this.weaponLock);
         UIScript.UpdateSlots(slot);
     }
     //----------Move----------//
+    //***This function was written by Yan
     private void Move()
     {
         this.body.velocity = (this.gotoPoint.normalized * moveSpeed) * Time.fixedDeltaTime;
     }
     //----------Interatction----------//
+    //***This function was written by Yan
     private void Interact() 
     {
         Vector2 orientation;
@@ -187,6 +202,7 @@ public class Player : LivingEntity
         interact = false;
     }
     //----------Walking Animation----------//
+    //***This function was written by Yan
     private void Animate_Direction()
     {
         if (!interrupt)
@@ -230,14 +246,18 @@ public class Player : LivingEntity
         this.moveSpeed = 250;
         this.offsetMagnitude = 0.4f; //Offset for the shield
         originalSpeed = moveSpeed;
+        bodySize = GetComponent<CapsuleCollider2D>();
     }
+
+    //Activate player's shield                                  ***This function was written by Nicky
     void RaiseShield()
     {
         shield.SetActive(true);
         hitBoxOffset = CalculateOffset(this.offsetMagnitude);
         shield.transform.localPosition = hitBoxOffset;
         moveSpeed = moveSpeed / 2;
-        //Handle visuals
+
+        //Handle visuals                                        ***The rest of this function was written by Simon
         SpriteRenderer renderer = shield.GetComponent<SpriteRenderer>();
         if (renderer != null)
         {
@@ -261,12 +281,16 @@ public class Player : LivingEntity
             }
         }
     }
+
+    //Deactivate player's shield                                  ***This function was written by Nicky
     void LowerShield()
     {
         shield.SetActive(false);
         shield.transform.localPosition = new Vector3(0, 0, 0);
         moveSpeed = originalSpeed;
     }
+
+    //***This was worked on by Yan and Simon
     void FixedUpdate()
     {
         if (attacking && !attack_cancel)
@@ -303,6 +327,7 @@ public class Player : LivingEntity
             LowerShield();
     }
     //----------Secondary Attack----------//
+    //***This function was written by Yan
     public void Current_SAttack() 
     {
         switch (slot) 
@@ -327,27 +352,36 @@ public class Player : LivingEntity
         if(UIScript)
             UIScript.UpdateIcons(weaponLock);
     }
-
     //----------Bomb----------//
+    //***This function was written by Yan
     public void Spawn_Bomb() 
     {
+        //Change body size
+        bodySize.offset = new Vector2(0f, 0.18f);
+        bodySize.size = new Vector2(0.525f, 1.25f);
         //check if the player attacked
         clone_throw = Instantiate(prefab_bomb, bomb_spawn);
         secondaryAttack = Throw_Bomb;
         sAttack = false;
+        
     }
+
+    //***This function was written by Yan
     public void Throw_Bomb() 
     {
         throwNoise.Play();
         //create distance between bomb spawn and location
         SetPosition(out Vector2 end, out _, tossRange);
         clone_throw.transform.parent = null;
-        StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn.position, end));
+        StartCoroutine(clone_throw.GetComponent<Bombs>().Tossed(bomb_spawn, end));
         secondaryAttack = null;
         sAttack = false;
         StartCoroutine(ItemCooldown());
+        bodySize.offset = Vector2.zero;
+        bodySize.size = originalSize;
     }
     //----------Pick Up----------//
+    //***This function was written by Yan
     public void PickUp() 
     {
         //check if player is attacking, and check if bomb spawn is emtpy
@@ -361,6 +395,8 @@ public class Player : LivingEntity
             {
                 if (hit.GetComponent<Throwable>())
                 {
+                    bodySize.offset = new Vector2(0f, 0.18f);
+                    bodySize.size = new Vector2(0.525f, 1.25f);
                     hit.GetComponent<Throwable>().Pickup(bomb_spawn);
                     hit.GetComponent<Throwable>().pickupSound.Play();
                     clone_throw = hit.gameObject;
@@ -370,8 +406,8 @@ public class Player : LivingEntity
         }
         pickup = false;
     }
-
     //----------Orientating sprite and stuff----------//
+    //***This function was written by Yan
     public void SetPosition(out Vector2 orientation, out Quaternion rotation , float distance) 
     {
         orientation = transform.position;
@@ -387,6 +423,7 @@ public class Player : LivingEntity
         }
     }
     //----------Bow----------//
+    //***This function was written by Yan
     public void ChargeBow() 
     {
         moveSpeed /= 4;
@@ -398,6 +435,7 @@ public class Player : LivingEntity
             StartCoroutine(bowCharge);
         }
     }
+    //***This function was written by Yan
     public void ShootBow() 
     {
         bowChargeImage.ToggleCharge();
@@ -424,6 +462,7 @@ public class Player : LivingEntity
         secondaryAttack = null;
     }
     //----------Mystery Item----------//
+    //***This function was written by Yan
     public void Mystery() 
     {
         //replace the prefab_arrow, i was just using it as a test instead of creating another class for projectile
@@ -440,6 +479,7 @@ public class Player : LivingEntity
             chacheCloneShot = clone_shot.GetComponent<Rigidbody2D>().velocity;
         }
     }
+    //***This function was written by Yan
     public void Mystery_Split() 
     {
         Vector2 orientation = chacheCloneShot;
@@ -505,15 +545,16 @@ public class Player : LivingEntity
         }
         attacking = false;
     }
+    //Player death function                     ***This function was written by Nicky
     protected override void Death()
     {
         this.gameObject.GetComponent<Player>().enabled = false;     //Disable player movement
         this.gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         anim.SetTrigger("Die");
-        manager.GameOver();     //Show Game Over screen + menu
+        manager.GameOver();         //Show Game Over screen + menu
     }
-    //----------Coroutines----------//
 
+    //----------Coroutines----------//
     private IEnumerator ItemCooldown()
     {
         itemCooldown = true;
@@ -526,7 +567,7 @@ public class Player : LivingEntity
         itemCooldown = false;
         
     }
-
+    //***This function was written by Yan
     private IEnumerator Attack_Cooldown() 
     {
         while (attacking) 
@@ -534,12 +575,14 @@ public class Player : LivingEntity
             interrupt = true;
             body.velocity = Vector2.zero;
             attack_cancel = true;
-            yield return new WaitForSeconds(timer); // had it halfed, because animation was too fast
+            yield return new WaitForSeconds(timer);
         }
         attack_cancel = false;
         attack_cooldown = null;
         interrupt = false;
     }
+    
+    //***This function was written by Simon
     private IEnumerator Dash(float dashTime)
     {
         
@@ -614,6 +657,8 @@ public class Player : LivingEntity
         interrupt = false;
         dashing = false;
     }
+    
+    //***This function was written by Yan
     private IEnumerator Bow_Charge() 
     {
         float charge = 0f;

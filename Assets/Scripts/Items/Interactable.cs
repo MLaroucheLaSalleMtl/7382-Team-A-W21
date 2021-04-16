@@ -22,21 +22,23 @@ public class Interactable : MonoBehaviour
     {
         manager = GameManager.instance;
     }
+    //***This function was written by Yan
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireCube(transform.position, size);
     }
+    //***This function was written by Yan (Partially)
     public virtual void Interaction() 
     {
         //If this item is a chest
         if (gameObject.CompareTag("Chest"))
         {
             manager.player.InteractionAdd();
-            anim.SetTrigger("Open");                //Play chest opening animation
-            GetComponent<AudioSource>().Play();     //Play chest opening sound effect
+            anim.SetTrigger("Open");                //Play chest opening animation              ***Code is written by Nicky from this line down
+            GetComponent<AudioSource>().Play();     //Play chest opening sound effect       
             this.gameObject.layer = LayerMask.NameToLayer("Default");   //Player can no longer interact with open chest
-            manager.ItemFound();
+            manager.ItemFound();                    //Display item found message
         }
         //If this item is a sign post
         else

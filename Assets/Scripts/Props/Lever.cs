@@ -11,7 +11,7 @@ public class Lever : Interactable
         anim.SetBool("LeverOn", !(anim.GetBool("LeverOn")));  //Flip the lever in the opposite direction
         foreach (Spikes spike in spikes)
         {
-            spike.InvertSpikes();
+            spike.InvertSpikes();           //Raise or lower spikes associated with this lever 
         }
     }
 }

@@ -27,7 +27,7 @@ public class SpawnPoint : MonoBehaviour
             player.canvas.GetComponent<UIBehaviour>().Start();
             SceneManager.MoveGameObjectToScene(manager.gameObject, SceneManager.GetActiveScene());
             manager.StartPlayerMove();
-            manager.obscure.SetActive(false);   //Stop hiding the screen
+            manager.obscure.SetActive(false);   //Stop hiding the player (for loading screen)
         }
     }
 }

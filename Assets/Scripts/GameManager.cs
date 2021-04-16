@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject[] dontDestroy;  //Objects that persist between scenes
     private bool cooldown = false;              //If the action has been performed recently (On cooldown)
     private bool paused = false;                //If the game is paused
+    private const float SHORT_DELAY = 0.2f;     //0.2 second delay upon activating certain UI screens
+    private const float LONG_DELAY = 1f;        //1 second delay upon sign/chest activations
 
     //Values for displaying messages to the player (Images, text, buttons)
     [SerializeField] public GameObject hud;
@@ -22,6 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private GameObject controlsMenu;
     [SerializeField] private GameObject optionsMenu;
+    [SerializeField] private Slider sfxSlide;
+    [SerializeField] private Slider musicSlide;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private Button btn_applyOptions;
     [SerializeField] private Button btn_newGame;
@@ -40,22 +44,19 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         if (instance == null)
-        {
             instance = this;
-        }
         else if (instance != this)
-        {
             Destroy(gameObject);
-        }
         foreach (GameObject gObject in dontDestroy)
-        {
             DontDestroyOnLoad(gObject);
-        }
     }
+
     private void Start()
     {
         StopPlayerMove();
         audioS = GetComponent<AudioSource>();
+        optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("music", 0));
+        optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("sfx", 0));
     }
 
     /////Menu Functions/////
@@ -74,9 +75,12 @@ public class GameManager : MonoBehaviour
     public void DisplayOptions()
     {
         DisableMenu(mainMenu);
+        sfxSlide.value = PlayerPrefs.GetFloat("sfx", 0);
+        musicSlide.value = PlayerPrefs.GetFloat("music", 0);
         EnableMenu(optionsMenu, btn_applyOptions);
     }
 
+    //Returns to the main menu
     public void ReturnToMain()
     {
         DisableMenu(optionsMenu);
@@ -156,7 +160,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         menuText.text = "Defeat";
-        Invoke("EnableMenu", 3f);
+        Invoke("EnableMenu", 3f);   //Wait for death animation to play
     }
  
     /////Helper Functions/////
@@ -166,49 +170,50 @@ public class GameManager : MonoBehaviour
     {
         EnableMenu(gameOverMenu, btn_mainMenu);
     }
+
+    //Enables the specified menu with default button selected
     public void EnableMenu(GameObject menu, Button defaultBtn)
     {
         menu.SetActive(true);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)
+        foreach (Button btn in buttons)             //Enable the buttons
             btn.enabled = true;
-        //Select first button (for keyboard/gamepad)
-        EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);
-        Cursor.lockState = CursorLockMode.None;   //Unlock and show cursor
+        EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);     //Select first button
+        Cursor.lockState = CursorLockMode.None;     //Unlock and show cursor
         Cursor.visible = true;
         StartCoroutine("WaitForButton");
     }
 
+    //Disables the specified menu
     public void DisableMenu(GameObject menu)
     {
         menu.SetActive(false);
         Button[] buttons = menu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)
+        foreach (Button btn in buttons)                     //Disable all the buttons
             btn.enabled = false;
-        //Reset currently selected button
-        EventSystem.current.SetSelectedGameObject(null);
-        Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
+        EventSystem.current.SetSelectedGameObject(null);    //Reset currently selected button
+        Cursor.lockState = CursorLockMode.Locked;           //Lock and hide cursor
         Cursor.visible = false;
     }
 
+    //Show note on screen
     private void DisplayNote()
     {
         note.SetActive(true);
         StartCoroutine("WaitForKey");
     }
 
+    //Displays the controls screen
     IEnumerator ControlsScreen()
     {
         bool unpressed = false;
-        float delay = 0.2f;
-        //Wait 0.2 seconds
-        while (delay > 0 && Time.timeScale != 0)
+        float delay = SHORT_DELAY;
+        while (delay > 0 && Time.timeScale != 0)    //Wait 0.2 seconds
         {
             delay -= Time.deltaTime;
             yield return null;
         }
-        //Wait for key press
-        while (true)
+        while (true)                    //Wait for key press
         {
             if (!Input.anyKeyDown)      //Make sure key press doesn't trigger twice in one frame
             {
@@ -234,15 +239,13 @@ public class GameManager : MonoBehaviour
     {
         bool unpressed = false;
         StopPlayerMove();
-        float delay = 0.5f;
-        //Wait 0.5 seconds
-        while (delay > 0)
+        float delay = SHORT_DELAY;
+        while (delay > 0)               
         {
             delay -= Time.deltaTime;
             yield return null;
         }
-        //Wait for key press
-        while (true)
+        while (true)                    //Wait for key press
         {
             if (!Input.anyKeyDown)      //Make sure key press doesn't trigger twice in one frame
             {
@@ -261,6 +264,7 @@ public class GameManager : MonoBehaviour
         audioS.clip = audioProgressText;
         audioS.Play();
     }
+
     //Coroutine waits for a menu button to be pressed on screen
     private IEnumerator WaitForButton()
     {
@@ -272,22 +276,24 @@ public class GameManager : MonoBehaviour
             StartPlayerMove();
         buttonPressed = false;
     }
+
     //Prevents the player from accessing the sign again immediately
     private IEnumerator SignCooldown()
     {
         cooldown = true;
-        float delay = 1f;
-        while (delay > 0)
+        float delay = LONG_DELAY;
+        while (delay > 0)           //Wait 1 second
         {
             delay -= Time.deltaTime;
             yield return null;
         }
         cooldown = false;
     }
+
     //Wait for chest animation to play before showing note
     private IEnumerator ChestDelay()
     {
-        float delay = 1f;
+        float delay = LONG_DELAY;
         while (delay > 0)
         {
             delay -= Time.deltaTime;
@@ -297,11 +303,13 @@ public class GameManager : MonoBehaviour
         audioS.clip = audioObtainItem;  //Play item obtained sound effect
         audioS.Play();
     }
+
     //Destroys the game manager and its children
     public void RemoveManager()
     {
         Destroy(gameObject);
     }
+
     //Disables the player's movement
     public void StopPlayerMove()
     {
@@ -309,6 +317,7 @@ public class GameManager : MonoBehaviour
         player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         player.gotoPoint = Vector2.zero;
     }
+
     //Enables the player's movement
     public void StartPlayerMove()
     {
@@ -316,6 +325,7 @@ public class GameManager : MonoBehaviour
         player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
     }
 
+    //Play a sound effect when player clicks a button
     public void PlayButtonAudio()
     {
         audioS.clip = audioProgressText;

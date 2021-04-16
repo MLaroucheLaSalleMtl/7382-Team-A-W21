@@ -16,26 +16,24 @@ public enum Direction
 [RequireComponent(typeof(Rigidbody2D))]
 public class LivingEntity : MonoBehaviour
 {
-    public int hp = 10; //Health
     protected GameManager manager;
     protected Animator anim;
     public Rigidbody2D body;
-    [Tooltip("Which way should I start facing?")] [SerializeField] protected Direction direction = Direction.DOWN;
+    protected Renderer myRenderer;
+    [SerializeField] protected AudioSource hurtSound;       //AudioSource
+    public int hp = 10;                                     //Health
     protected int attack_damage;
+    protected float moveSpeed = 3;
+    [Tooltip("Which way should I start facing?")] [SerializeField] protected Direction direction = Direction.DOWN;
     [HideInInspector] public Vector2 gotoPoint;     //Where to walk to
     protected bool interrupt = false;               //Pauses follow/roaming AI behaviour
     protected const float timer = 0.5f;
     protected IEnumerator knockback;
     protected bool invincible = false;
-    protected Renderer myRenderer;
-    protected float moveSpeed = 3;
-    protected Vector3 hitBoxOffset = new Vector3(0,0,0);           //Offset from the entity of its hitbox 
-    protected float offsetMagnitude = 0f;     //Magnitude of the entity hitbox offset
+
+    protected Vector3 hitBoxOffset = new Vector3(0,0,0);    //Offset from the entity of its hitbox 
+    protected float offsetMagnitude = 0f;                   //Magnitude of the entity hitbox offset
     private const float shieldKnockback = 5f;
-
-    //AudioSource
-    [SerializeField] protected AudioSource hurtSound;
-
 
     // Start is called before the first frame update
     public void Start()
@@ -75,14 +73,14 @@ public class LivingEntity : MonoBehaviour
         }
     }
 
-
     //defult melee attack for player (replaced with animations)
+    //***This function was written by Yan
     public virtual void Attack() 
     {
         //Player's attack is made together with the animation
         this.anim.SetTrigger("Attack");
     }
-
+    //***This function was written by Yan
     public virtual void Hurt(int damage, Transform hitting) 
     {
         //stop entity's velocity so you can push them...
@@ -139,6 +137,7 @@ public class LivingEntity : MonoBehaviour
     }
 
     //Coroutines
+    //***This function was written by Yan
     private IEnumerator KnockBackCoolDown() 
     {
         while (interrupt) 

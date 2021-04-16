@@ -32,16 +32,14 @@ public class BaseEnemyAI : LivingEntity
     [Tooltip("Enemy's attack reach on the x and y-axes if melee")] [SerializeField] protected Vector2 attackReach = new Vector2(1f, 1f);
     [Tooltip("Projectile to shoot if ranged")] [SerializeField] private GameObject enemyProjectile;
     protected float projectileSpeed = 0;
+    private bool attackCD = false;                  //Is the attack on cooldown?
+    protected float cooldownTimer = 1;             //Cooldown between attacks in seconds
+    private Collider2D playerHit;                   //Collider hit by enemy melee attack (player collider)
     private LayerMask layerMask;
 
     //Hidden fields (private or hidden)
     private bool wasPlayer = false;     //Did we last see the player or are we wandering
     public Rigidbody2D rigid;
-
-    //Variables for enemy attack
-    private bool attackCD = false;                  //Is the attack on cooldown?
-    protected float cooldownTimer = 1;              //Cooldown between attacks in seconds
-    private Collider2D playerHit;                   //Collider hit by enemy melee attack (player collider)
 
     //Internals
     private Vector2 lastPoint;
@@ -67,7 +65,7 @@ public class BaseEnemyAI : LivingEntity
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(this.transform.position, approach);
 
-        //Hitbox for enemy attack
+        //Hitbox for enemy attack                               ***Written by Nicky (2 lines)
         Gizmos.color = Color.red;                           
         Gizmos.DrawWireCube(this.transform.position, attackReach);
     }
@@ -163,31 +161,6 @@ public class BaseEnemyAI : LivingEntity
 
     }
 
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    List<ContactPoint2D> conPoints2D = new List<ContactPoint2D>();
-    //    collision.GetContacts(conPoints2D);
-    //    Vector2 avg = Vector2.zero;
-    //        foreach(ContactPoint2D conPoint in conPoints2D)
-    //        {
-    //            avg += conPoint.point;
-    //        }
-    //        avg /= conPoints2D.Count;
-    //        avg = ((avg - (Vector2)this.transform.position).normalized * Random.Range(0, -wanderRange));
-    //        RaycastHit2D hit = Physics2D.Raycast(this.transform.position, avg, avg.magnitude, blinds);
-    //        Rotate(avg);
-    //        if (hit)
-    //        {
-    //            avg = hit.point;
-    //        }
-    //        else
-    //        {
-    //            avg = avg += (Vector2)this.transform.position;
-    //        }
-    //    gotoPoint = avg;    
-    //}
-
-
     //** ALL CUSTOM METHODS HERE **//
 
     //Pick a new point based on wether the monster want's to wander or not.
@@ -235,7 +208,7 @@ public class BaseEnemyAI : LivingEntity
         return true;
     }
 
-    //Action to perform when in range of player
+    //Action to perform when in range of player                             ***Code is written by Nicky from this line down
     protected void Action()
     {
         //Check if attack is on cooldown
@@ -243,36 +216,31 @@ public class BaseEnemyAI : LivingEntity
         {
             interrupt = true;          //Pause roaming/follow AI
             Attack();
-            interrupt = false;                      //Resume AI behaviour
+            interrupt = false;         //Resume AI behaviour
         }
     }
 
     //Enemy melee attack
     protected void MeleeAttack()
     {
-        if (this.hp <= 0)   //Enemy can not attack if dead
+        if (this.hp <= 0)               //Enemy can not attack if dead
             return;
         layerMask = LayerMask.GetMask("Shield");    
         playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
-        if (playerHit == null)  //If enemy didn't hit shield
+        if (playerHit == null)          //If enemy didn't hit shield
         {
             layerMask = LayerMask.GetMask("Player");
             playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
-            if (playerHit == null) { } //If we hit nothing
+            if (playerHit == null) { }  //If we hit nothing
             else if (manager.player.stamina <= 0 || playerHit.gameObject == manager.player.gameObject) //If enemy hits the player or player is out of stamina
             {
                 manager.player.Hurt(attack_damage, this.gameObject.transform);  //Deal damage to player
                 StartCoroutine(AtkCooldownCoroutine());                         //Start attack cooldown
             }
-            else
-            {
-                Debug.Log(playerHit);
-            }
         }  
         else if (manager.player.stamina > 0 && playerHit.gameObject == manager.player.shield)     //If enemy hits shield and player has stamina
         {
-            Debug.Log(playerHit);
-            manager.player.Hurt(0, this.gameObject.transform);      //knockback player
+            manager.player.Hurt(0, this.gameObject.transform);      //Knock player back
             StartCoroutine(AtkCooldownCoroutine());                 //Start attack cooldown
             this.Hurt(0, manager.player.transform);                 //Knock enemy back
             manager.player.stamina -= manager.player.shieldCost;    //Reduce player stamina
@@ -288,6 +256,7 @@ public class BaseEnemyAI : LivingEntity
         StartCoroutine(AtkCooldownCoroutine());                 //Start attack cooldown
     }
 
+    //Cooldown between regular attacks
     IEnumerator AtkCooldownCoroutine()
     {
         attackCD = true;            //Attack is on cooldown
@@ -300,13 +269,15 @@ public class BaseEnemyAI : LivingEntity
         attackCD = false;           //Attack is no longer on cooldown
     }
 
+    //Enemy death
     protected override void Death()
     {
         base.Death();
         anim.SetTrigger("Death");
-        StartCoroutine(DeathCoroutine(1f));    //Wait 1 second before removing corpse
+        StartCoroutine(DeathCoroutine(1f));
     }
 
+    //Wait 1 second before removing corpse
     private IEnumerator DeathCoroutine(float seconds)
     {
         while (seconds > 0)

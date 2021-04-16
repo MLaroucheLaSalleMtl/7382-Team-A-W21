@@ -12,9 +12,11 @@ public class BtnHandler : MonoBehaviour, IPointerEnterHandler, IDeselectHandler,
     {
         manager = GameManager.instance;
     }
+
+    //Deselect previous button when I use keyboard
     public void OnDeselect(BaseEventData eventData)
     {
-        GetComponent<Selectable>().OnPointerExit(null); //When I use keyboard, deselect previous button
+        GetComponent<Selectable>().OnPointerExit(null); 
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -28,8 +30,9 @@ public class BtnHandler : MonoBehaviour, IPointerEnterHandler, IDeselectHandler,
         Input.ResetInputAxes();     //Avoid double selection
     }
 
+    //Puts focus on the button the mouse hovers
     public void OnPointerEnter(PointerEventData eventData)
     {
-        GetComponent<Selectable>().Select();    //Puts focus on the button the mouse hovers
+        GetComponent<Selectable>().Select();    
     }
 }

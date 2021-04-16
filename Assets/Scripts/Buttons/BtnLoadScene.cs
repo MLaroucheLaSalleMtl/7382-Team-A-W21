@@ -11,12 +11,12 @@ public class BtnLoadScene : MonoBehaviour
 
     public void ButtonLoadScene(int i)
     {
-        if (async != null) return;  //If there's already something loading, don't continue
-        Time.timeScale = 1.0f;      //Reset to default time scale
-        Input.ResetInputAxes();     //Avoid accidental selection on button release
-        System.GC.Collect();        //Clear memory of unused items
-        async = SceneManager.LoadSceneAsync(i);   //Load specified scene
-        async.allowSceneActivation = false; //Wait to switch to next scene
+        if (async != null) return;                  //If there's already something loading, don't continue
+        Time.timeScale = 1.0f;                      //Reset to default time scale
+        Input.ResetInputAxes();                     //Avoid accidental selection on button release
+        System.GC.Collect();                        //Clear memory of unused items
+        async = SceneManager.LoadSceneAsync(i);     //Load specified scene
+        async.allowSceneActivation = false;         //Wait to switch to next scene
     }
     void Update()
     {

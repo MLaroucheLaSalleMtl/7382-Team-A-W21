@@ -31,6 +31,7 @@ public class Door : Interactable
             }
         }
     }
+
     public void OpenDoor()
     {
         this.closed = false;
@@ -43,10 +44,11 @@ public class Door : Interactable
             GameManager manager = GameManager.instance;
             manager.DungeonCleared();
         }
-        //cancel all invokes in switches
+        //cancel all invokes in switches                    ***This foreach loop was written by Yan
         foreach (Arrow_Switch s in switches)
             s.CancelInvoke();
     }
+
     public void CloseDoor()
     {
         this.closed = true;
@@ -55,20 +57,22 @@ public class Door : Interactable
         audioS.Play();
         this.GetComponent<BoxCollider2D>().enabled = true;  //Stop player from walking through door
     }
+
     private void Update()
     {
         if ((enemies.Count > 0 || switches.Length > 0) && locked && closed)
             CheckLocks();       //Check if conditions have been met to open door
     }
 
+    //Checks if conditions have been met to open door
     public void CheckLocks()
     {
-        foreach(GameObject enemy in enemies)
+        foreach(GameObject enemy in enemies)    //All enemies have been defeated
         {
             if (enemy != null)
                 return;
         }
-        if (switches != null) 
+        if (switches != null)                   //All switches are active           ***This foreach loop was written by Yan
         {
             foreach (Arrow_Switch s in switches)
             {

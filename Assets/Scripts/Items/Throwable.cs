@@ -27,24 +27,22 @@ public class Throwable : MonoBehaviour
         thrown = false;
         destination_reached = false;
         body.bodyType = RigidbodyType2D.Kinematic;
-        gameObject.layer = LayerMask.NameToLayer("Bomb");
+        gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
         this.gameObject.transform.position = head.position;
         this.gameObject.transform.parent = head;
     }
-    public IEnumerator Tossed(Vector2 start, Vector2 end)
+    public IEnumerator Tossed(Transform start, Vector2 end)
     {
         this.thrown = true;
-        Vector2 distance = (end - start);
+        Vector2 distance = (end - (Vector2) start.position);
         body.velocity = distance.normalized * tossSpeed;
         body.isKinematic = false;
-        gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
         while (!destination_reached && gameObject.activeSelf)
         {
             //check distance
-            Debug.Log(Vector2.Distance(transform.position, end));
             if (Vector2.Distance(transform.position, end) < 0.11f) //needs to be 0.11, due to how fixed update works
             {
-                transform.position = end;
+                body.MovePosition(end);
                 body.velocity = Vector2.zero;
                 gameObject.layer = LayerMask.NameToLayer("Default");
                 destination_reached = true;
@@ -57,8 +55,6 @@ public class Throwable : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Level"))
         {
-            //check if the player is looking a wall
-            //RaycastHit2D hit = Physics2D.Raycast(manager.player.transform.position,)
             wallHitSound.Play();
             body.velocity = Vector2.zero;
             destination_reached = true;

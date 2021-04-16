@@ -40,4 +40,9 @@ public class ObjectPooling : MonoBehaviour
         objectpooling.Add(temp);
         return temp;
     }
+    public void TurnOffBullets() 
+    {
+        foreach (GameObject g in objectpooling)
+            g.SetActive(false);
+    }
 }

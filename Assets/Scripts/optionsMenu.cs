@@ -7,7 +7,7 @@ using UnityEngine.Audio;
 public class optionsMenu : MonoBehaviour
 {
     [SerializeField] private Dropdown resolutionList;
-    [SerializeField] private AudioMixer mixer;
+    public AudioMixer mixer;
     private Resolution[] resolutions;
     private void updateResolution ()
     {
@@ -39,11 +39,13 @@ public class optionsMenu : MonoBehaviour
     public void changeSFX(float value)
     {
         mixer.SetFloat("SFXVol", value);
+        PlayerPrefs.SetFloat("sfx", value);
     }
 
     public void changeMusic(float value)
     {
         mixer.SetFloat("MusicVol", value);
+        PlayerPrefs.SetFloat("music", value);
     }
 
 

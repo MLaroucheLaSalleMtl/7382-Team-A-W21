@@ -11,17 +11,12 @@ public class StartGame : MonoBehaviour
 
     void Start()
     {
-        manager = GameManager.instance;
-        Cursor.lockState = CursorLockMode.None;
+        manager = GameManager.instance;             //Cache game manager
+        Cursor.lockState = CursorLockMode.None;     //Unlock and show the cursor
         Cursor.visible = true;
     }
 
-    private void PrepStart()
-    {
-        Input.ResetInputAxes();     //Avoid accidental selection on button release
-        //System.GC.Collect();        //Clear memory of unused items
-    }
-
+    //Starts a new game
     public void StartNewGame()
     {
         if (async != null) return;  //If there's already something loading, don't continue
@@ -30,28 +25,36 @@ public class StartGame : MonoBehaviour
         async.allowSceneActivation = false;         //Wait to switch to next scene
     }
 
+    //Loads the game from player's last checkpoint
     public void ContinueSavedGame()
     {
         if (async != null) return;  //If there's already something loading, don't continue
         PrepStart();
         sceneToLoad = PlayerPrefs.GetInt("Level", 3);       //Read save game data from the registry
         async = SceneManager.LoadSceneAsync(sceneToLoad);   //Load saved scene
-        async.allowSceneActivation = false;         //Wait to switch to next scene
+        async.allowSceneActivation = false;                 //Wait to switch to next scene
     }
 
     //Adds items to the player based on the scene they're entering
     void AddItems()
     {
         int check = PlayerPrefs.GetInt("Checkpoint", 0);
-        if (sceneToLoad > 6 || (sceneToLoad == 5 && check > 0))          //First dungeon - Add shield
+        if (sceneToLoad > 6 || (sceneToLoad == 5 && check > 0))     //First dungeon - Add shield
             manager.player.InteractionAdd();
-        if (sceneToLoad > 10 || (sceneToLoad == 9 && check > 0))         //Second dungeon - Add bombs
+        if (sceneToLoad > 10 || (sceneToLoad == 9 && check > 0))    //Second dungeon - Add bombs
             manager.player.InteractionAdd();
-        if (sceneToLoad == 13 && check > 0)                     //Third dungeon - Add bow and wand
+        if (sceneToLoad == 13 && check > 0)                         //Third dungeon - Add bow and wand
         {
             manager.player.InteractionAdd();
             manager.player.InteractionAdd();
         }
+    }
+
+    //Clean up memory before loading next scene
+    private void PrepStart()
+    {
+        Input.ResetInputAxes();     //Avoid accidental selection on button release
+        System.GC.Collect();        //Clear memory of unused items
     }
 
     void Update()
@@ -63,7 +66,7 @@ public class StartGame : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;   //Lock and hide cursor
             Cursor.visible = false;
             manager.hud.SetActive(true);
-            Destroy(manager.mainMenu);  //Destroy the main menu once we're done with it
+            Destroy(manager.mainMenu);      //Destroy the main menu once we're done with it
             async.allowSceneActivation = true;
         }
     }

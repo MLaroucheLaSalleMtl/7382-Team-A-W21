@@ -12,16 +12,19 @@ public class Spikes : MonoBehaviour
         this.anim = GetComponent<Animator>();
         this.anim.SetBool("SpikesOn", raisedAtStart);
     }
+
+    //If the player walks into the spikes
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Player player;
-        if (player = collision.collider.GetComponent<Player>()) //If the player walks into a spike
+        if (player = collision.collider.GetComponent<Player>())     //Damage the player
             player.Hurt(1, this.transform);
     }
+
+    //Raise or lower the spikes
     public void InvertSpikes()
     {
-        anim.SetBool("SpikesOn", !(anim.GetBool("SpikesOn")));  //Invert the bool value of SpikesOn
+        anim.SetBool("SpikesOn", !(anim.GetBool("SpikesOn")));      //Invert the bool value of SpikesOn
         GetComponent<AudioSource>().Play();
     }
-
 }

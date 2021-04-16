@@ -85,13 +85,16 @@ public class GhostBoss : LivingEntity
     }
     public void TargetAttack() 
     {
-        Vector2 middle_shot = (manager.player.transform.position - transform.position).normalized;
-        Vector2 second_shot = Rotate(15f, middle_shot);
-        Vector2 third_shot = Rotate(-15f, middle_shot);
+        if (manager.player.hp > 0) // makes sure there's no null reference
+        {
+            Vector2 middle_shot = (manager.player.transform.position - transform.position).normalized;
+            Vector2 second_shot = Rotate(15f, middle_shot);
+            Vector2 third_shot = Rotate(-15f, middle_shot);
 
-        Shot(ObjectPooling.instance.GetBullet(), middle_shot, 2 * bulletSpeed);
-        Shot(ObjectPooling.instance.GetBullet(), second_shot, 2 * bulletSpeed);
-        Shot(ObjectPooling.instance.GetBullet(), third_shot, 2 * bulletSpeed);
+            Shot(ObjectPooling.instance.GetBullet(), middle_shot, 2 * bulletSpeed);
+            Shot(ObjectPooling.instance.GetBullet(), second_shot, 2 * bulletSpeed);
+            Shot(ObjectPooling.instance.GetBullet(), third_shot, 2 * bulletSpeed);
+        }
     }
     public Vector2 Rotate(float angle, Vector2 vector) 
     {
@@ -221,15 +224,14 @@ public class GhostBoss : LivingEntity
     {
         base.Death();
         //gameObject.SetActive(false);
+        ObjectPooling.instance.TurnOffBullets();
         Destroy(gameObject);
     }
     //----------Coroutine----------//
     private IEnumerator Attacking() 
     {
-        Debug.Log((decision != StaticPattern_Flower && decision != TargetAttack));
         float count = 0;
-        //add more to condition if there's more attack
-        while (count < duration)
+        while (count < duration && manager.player.hp > 0) // make sure it attacks if the player is alive
         {
             yield return new WaitForSeconds(delayPerShot);
             decision();
@@ -286,10 +288,16 @@ public class GhostBoss : LivingEntity
             //set movement to be the reflection
             movement = body.velocity;
         }
-        else if (collision.gameObject.layer == LayerMask.NameToLayer("Player")) 
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             //touch boss = death
             manager.player.Hurt(100, transform);
+        }
+        else if (collision.gameObject.GetComponent<Throwable>()) 
+        {
+            body.velocity = Vector2.zero;
+            if (moving)
+                StartMovement();
         }
     }
 }
