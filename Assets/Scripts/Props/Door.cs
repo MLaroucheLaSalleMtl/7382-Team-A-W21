@@ -16,6 +16,7 @@ public class Door : Interactable
     [SerializeField] AudioClip audioLocked;
     [SerializeField] AudioClip audioRoomCleared;
 
+    //When you interact with a door
     public override void Interaction()
     {
         if (closed) //If the door is closed
@@ -26,9 +27,7 @@ public class Door : Interactable
                 audioS.Play();
             }
             else        //If the door is not locked
-            {
                 OpenDoor();
-            }
         }
     }
 

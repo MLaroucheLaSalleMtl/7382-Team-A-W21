@@ -21,9 +21,9 @@ public class Projectile : MonoBehaviour
     //When the projectile hits something   
     protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
-        //check if it needs to split first          
-        CheckSplit();                                   //***This line is written by Yan
-        
+                  
+        CheckSplit();   //Check if projectile splits
+
         if (collision.collider.name == "Shield")    //If we hit the player's shield
         {
             this.gameObject.layer = LayerMask.NameToLayer("PlayerProjectiles");
@@ -40,26 +40,20 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);    //Destroy the projectile
     }
 
-    //check if projectile is the split one              ***Code written by Yan from this line down
+    //Check if projectile splits
     private void CheckSplit()
     {
         if (gameObject.CompareTag("Split"))
-        {
             manager.player.GetComponent<Player>().Mystery_Split();
-        }
     }
 
-    //Drain
+    //Drain player's stamina on hit
     protected void DrainStamina() 
     {
         if (manager.player.stamina >= drainAmount)
-        {
             manager.player.stamina -= drainAmount;
-        }
         else 
-        {
             manager.player.stamina = 0;
-        }
         manager.player.canvas.GetComponent<UIBehaviour>().SetBar(UIBars.Stamina, manager.player.stamina, manager.player.maxStamina);
     }
 }

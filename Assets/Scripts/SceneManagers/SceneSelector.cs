@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-//Switches to the next scene when the player walks through the door
+//Switches to the next scene when the player walks through a door
 public class SceneSelector : MonoBehaviour
 {
     private AsyncOperation async;

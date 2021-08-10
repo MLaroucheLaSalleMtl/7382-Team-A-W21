@@ -253,7 +253,7 @@ public class GhostBoss : LivingEntity
         yield return null;
     }
     //----------Built In Functions----------//
-    private void Start()
+    new private void Start()
     {
         angles = new List<float>();
         angles.Add(0f);

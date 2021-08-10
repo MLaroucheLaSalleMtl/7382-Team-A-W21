@@ -1,14 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class BtnLoadScene : MonoBehaviour
 {
     private AsyncOperation async;   //Data that's been loaded
 
+    //Loads a new scene on button click
     public void ButtonLoadScene(int i)
     {
         if (async != null) return;                  //If there's already something loading, don't continue

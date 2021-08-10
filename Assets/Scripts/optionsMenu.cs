@@ -55,10 +55,4 @@ public class optionsMenu : MonoBehaviour
         resolutions = Screen.resolutions;
         updateResolution();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

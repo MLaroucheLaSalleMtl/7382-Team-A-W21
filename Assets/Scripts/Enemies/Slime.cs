@@ -5,9 +5,8 @@ using UnityEngine;
 public class Slime : BaseEnemyAI
 {
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
-        this.approach = 0f;     //Slime is a melee enemy
         this.moveSpeed = 4f;
         this.attack_damage = 3;
         base.Start();

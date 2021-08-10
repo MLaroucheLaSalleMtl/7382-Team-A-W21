@@ -8,7 +8,7 @@ public class magicJar : LivingEntity
     [HideInInspector] public MagicJarManager magicManager;
     public bool broken = false;
 
-    void Start()
+    new void Start()
     {
         base.anim = GetComponent<Animator>();
         base.anim.SetBool("broken", broken);

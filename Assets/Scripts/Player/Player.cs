@@ -232,7 +232,7 @@ public class Player : LivingEntity
     }
 
     //----------Built In Function----------//
-    void Start()
+    new void Start()
     {
         base.Start();
         this.body = GetComponent<Rigidbody2D>();

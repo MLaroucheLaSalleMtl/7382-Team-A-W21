@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     //Make sure there's only one instance of GameManager
     private void Awake()
     {
-        if (instance == null)
+        if (instance == null)   
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
@@ -55,8 +55,11 @@ public class GameManager : MonoBehaviour
     {
         StopPlayerMove();
         audioS = GetComponent<AudioSource>();
-        optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("music", 0));
-        optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("sfx", 0));
+        if (optionsMenu && optionsMenu.GetComponent<optionsMenu>())
+        {
+            optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("music", 0));
+            optionsMenu.GetComponent<optionsMenu>().mixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("sfx", 0));
+        }
     }
 
     /////Menu Functions/////
@@ -87,7 +90,7 @@ public class GameManager : MonoBehaviour
         EnableMenu(mainMenu, btn_newGame);
     }
 
-    //Pause game
+    //Pauses and unpauses the game
     public void Pause()
     {
         Scene currentScene = SceneManager.GetActiveScene();
@@ -124,6 +127,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine("WaitForKey");
         }
     }
+
     //When the player finds a new item
     public void ItemFound()
     {
@@ -150,6 +154,7 @@ public class GameManager : MonoBehaviour
         noteText.text = str;
         StartCoroutine("ChestDelay");
     }
+
     //When the player clears a dungeon
     public void DungeonCleared()
     {

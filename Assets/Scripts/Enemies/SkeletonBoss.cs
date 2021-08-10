@@ -7,15 +7,15 @@ public class SkeletonBoss : BaseEnemyAI
     private const int MAX_HP = 20;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         this.hp = MAX_HP;
-        this.approach = 5f;             //Ranged enemy
         this.moveSpeed = 3f;
         this.attack_damage = 3;
+        this.visionRange = 8f;
+        this.attackReach = 6f;
         this.cooldownTimer = 1f;        //Time between attacks (in seconds) while in range
         this.projectileSpeed = 5f;
-        this.fov = 360;                 //300 degrees of vision
         base.Start();
     }
 
