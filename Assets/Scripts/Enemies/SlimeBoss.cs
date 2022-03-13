@@ -8,13 +8,11 @@ public class SlimeBoss : BaseEnemyAI
     [SerializeField] private GameObject minion;
     [SerializeField] private List<Door> exitDoors;
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         this.hp = 6;
-        this.approach = 0f;
         this.moveSpeed = 2f;
         this.attack_damage = 3;
-        base.threshold = 2;
         base.Start();
     }
 
@@ -24,7 +22,6 @@ public class SlimeBoss : BaseEnemyAI
         {
             this.transform.localScale *= 0.83333f;
             this.attackReach *= 0.83333f;
-            base.threshold *= 0.83333f;
             this.moveSpeed+=0.1f;
             this.hp--;
             if (hp <= 0)

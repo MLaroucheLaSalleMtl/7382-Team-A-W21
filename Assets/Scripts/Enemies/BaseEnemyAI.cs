@@ -1,125 +1,61 @@
-//Simon Choquet 2/4/2021
-
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-/// <summary>
-/// 
-/// This implements very basic AI that wanders until it spots a target.
-/// After which it will run to the target or the last place the target was spotted.
-/// If it loses track of the player it will restart the cycle.
-/// However, If it finds itself within the specified range, it will try to maintain this range.
-/// 
-/// </summary>
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CircleCollider2D))]
 public class BaseEnemyAI : LivingEntity
 {
-    //Inspector fields (public or serialized)
-    [Header("AI Behaviour")]
-    [Tooltip("What am I looking for?")] public Transform target;
-    [Tooltip("What can we NOT see through?")] [SerializeField] private LayerMask blinds;
-    [Tooltip("How close should I get to my destination before I say I've arrived? [Do not change if you do not understand]")] [SerializeField] protected float threshold = 0.8f;
-    [Header("AI Stats")]
-    [Tooltip("How wide is my field of view? [Should keep above 90 if you don't want blind spots]")] [Range(2, 360)] public float fov = 120;
-    [Tooltip("How far can I see?")] [Range(1, 100)] public float range = 20;
-    [Tooltip("How far can I wander?")] [Range(1, 100)] public float wanderRange = 10;
-    [Tooltip("How close do I want to get? Also the auto-detect range!")] [Range(0, 20)] public float approach = 7;
-    [Space]
-    [Header("Enemy Attack Parameters")]
-    [Tooltip("Enemy's attack reach on the x and y-axes if melee")] [SerializeField] protected Vector2 attackReach = new Vector2(1f, 1f);
     [Tooltip("Projectile to shoot if ranged")] [SerializeField] private GameObject enemyProjectile;
-    protected float projectileSpeed = 0;
-    private bool attackCD = false;                  //Is the attack on cooldown?
-    protected float cooldownTimer = 1;             //Cooldown between attacks in seconds
-    private Collider2D playerHit;                   //Collider hit by enemy melee attack (player collider)
-    private LayerMask layerMask;
+    private Rigidbody2D rigid;
+    private Transform target;
+    private bool attackCD = false;      //Is the attack on cooldown?
+    private Collider2D playerHit;       //Collider hit by enemy melee attack (player collider)
+    private LayerMask playerMask;
+    private LayerMask shieldMask;
+    private Vector2 dirToTarget;        //Direction for enemy to reach its target (the player)
+    private float distFromTarget;       //Distance between the enemy and its target (the player)
+    private bool roamingCD;             //If the enemy moved recently 
 
-    //Hidden fields (private or hidden)
-    private bool wasPlayer = false;     //Did we last see the player or are we wandering
-    public Rigidbody2D rigid;
+    //Stats
+    protected float projectileSpeed = 0f;
+    protected float cooldownTimer = 1f; //Cooldown between attacks in seconds
+    protected float attackReach = 1f;   //Enemy's attack reach
+    protected float visionRange = 6f;   //If player is within this range, chase them
+    private float despawnTimer = 1f;    //Delay before despawning enemy corpses      
+    private float roamingTimer = 10f;   //Max time between enemy roaming movements
 
-    //Internals
-    private Vector2 lastPoint;
-    private float timeSinceMove = 0;
-
-
-    //Unity Messages
-    public void Start()
+    protected new void Start()
     {
         base.Start();
         rigid = GetComponent<Rigidbody2D>();        //Retrieve our rigid body
         target = manager.player.transform;          //Set player as our target
-        //blinds = LayerMask.GetMask("Level");        //Layer with objects the enemy can't see through
-        pickPoint();
+        shieldMask = LayerMask.GetMask("Shield");
+        playerMask = LayerMask.GetMask("Player");
     }
 
-    private void OnDrawGizmosSelected()
+    private void Update()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(this.transform.position, range);
-        Gizmos.DrawLine(this.transform.position, this.transform.position+(Quaternion.Euler(0, 0, (int)direction + (fov / 2)) * Vector2.right) * range);
-        Gizmos.DrawLine(this.transform.position, this.transform.position+(Quaternion.Euler(0, 0, (int)direction - (fov / 2)) * Vector2.right) * range);
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(this.transform.position, approach);
+        if (interrupt)  //Stops all enemy behaviour
+            return;
 
-        //Hitbox for enemy attack                               ***Written by Nicky (2 lines)
-        Gizmos.color = Color.red;                           
-        Gizmos.DrawWireCube(this.transform.position, attackReach);
+        dirToTarget = target.transform.position - this.transform.position;  //Calculate direction and distance to player
+        distFromTarget = dirToTarget.magnitude;
+        dirToTarget.Normalize();
+        Vector2 velocity = dirToTarget * moveSpeed;
+
+        RaycastHit2D hit = Physics2D.Raycast(this.transform.position, target.position - this.transform.position, visionRange, LayerMask.GetMask("Player") | LayerMask.GetMask("Level"));
+        if (hit.collider)
+            Debug.Log(hit.collider.name);
+        if (distFromTarget <= attackReach)  //Attack player if within attack range
+            Action();
+        else if (distFromTarget >= attackReach && hit.transform == target)    //Else if within vision range, approach player
+            rigid.velocity = new Vector2(velocity.x, velocity.y);
+        else if (!roamingCD)   
+            StartCoroutine(RoamingCoroutine()); //Roaming
     }
-    
+
     private void FixedUpdate()
     {
-        //If interrupted don't move and don't do anything 
-        if (interrupt) return;
-        
-        //If we haven't arrived to our node walk that way
-        if (((gotoPoint - (Vector2)this.transform.position).magnitude > threshold))
-        {
-            rigid.velocity = (gotoPoint - (Vector2)this.transform.position).normalized * moveSpeed; //Head to point
-            Rotate(rigid.velocity);
-        }
-        else 
-        {
-            pickPoint(); //Once we've arrived pick a new node
-        }
-        
-
-        if (target)
-        {
-            //If the target gets too close we automatically face it
-            if ((target.position - this.transform.position).magnitude < approach)
-            {
-                Rotate(target.position - this.transform.position);
-            }
-            
-            //If we can see our target head towards it
-            if (canSee(target.position))
-            {
-                if (enemyProjectile != null && Vector3.Distance(target.position, transform.position) < approach)
-                {
-                    rigid.velocity /= 1.25f;
-                    Action();
-                }
-                else
-                {
-                    Vector3 dif = target.position - this.transform.position;
-                    float travelDist = dif.magnitude - approach;
-                    dif = dif.normalized;
-                    dif *= travelDist;
-                    gotoPoint = this.transform.position + dif;
-                    wasPlayer = true;
-                    if ((gotoPoint - (Vector2)this.transform.position).magnitude < threshold)
-                    {
-                        rigid.velocity /= 1.25f;
-                        Action();
-                    }
-                }
-            }
-
-        }
         //Update enemy's walk/idle animation
         if (this.rigid.velocity.magnitude > 0.1)
         {
@@ -129,109 +65,26 @@ public class BaseEnemyAI : LivingEntity
         }
         else
             this.anim.SetBool("Mov", false);
-
-        //Fix any form of stubborness
-        if (lastPoint == (Vector2)this.transform.position)
-        {
-            timeSinceMove += Time.fixedDeltaTime;
-            if(timeSinceMove > 1)
-            {
-                pickPoint();
-            }
-        }
-        else
-        {
-            lastPoint = (Vector2)this.transform.position;
-            timeSinceMove = 0f;
-        }
     }
 
-    void Update()
-    {
-
-        //For visualisation in edior only
-        //Also note the * Vector2.right
-        //(Because mathematically rotation should always be starting from the positive x and going CCW. Like the Unit Circle!)
-        #if UNITY_EDITOR
-            if (target != null)
-            {
-                Debug.DrawRay(this.transform.position, target.position - this.transform.position, canSee(target.position) ? Color.blue : Color.red); //Player scanline
-            };
-        #endif
-
-    }
-
-    //** ALL CUSTOM METHODS HERE **//
-
-    //Pick a new point based on wether the monster want's to wander or not.
-    private void pickPoint()
-    {
-        Vector2 dest;
-        if (wasPlayer) //If the last point was chasing a player continue a little farther in that direction (To meet exactly where the player should've been spotted)
-        {
-            dest = rigid.velocity.normalized;
-            dest *= approach;
-        }
-        else //Or pick a random point (wander)
-        {
-            dest = new Vector2(Random.value, Random.value);
-            dest.Normalize();
-            dest *= Random.Range(-wanderRange, wanderRange);
-        }
-        RaycastHit2D hit = Physics2D.Raycast(this.transform.position, dest, dest.magnitude, blinds);
-        Rotate(dest);
-        if (hit)
-        {
-            dest = hit.point;
-        }
-        else
-        {
-            dest = dest += (Vector2)this.transform.position;
-        }
-        wasPlayer = false;
-        gotoPoint = dest;
-    }
-
-    //My process of elimination version of a field of view for ai
-    private bool canSee(Vector3 tgt)
-    {
-
-        Vector3 dif = tgt - this.transform.position;
-        if (dif.magnitude > range) return false; //out of range = can't see
-
-        float angle = Vector2.Angle(Quaternion.Euler(0, 0, (int)direction) * Vector2.right, (Vector2)(this.transform.position - tgt)) - 180; //get angle in field of view
-        if (angle < -0.5 * fov) return false; //Out of fov = can't see
-
-        RaycastHit2D hit = Physics2D.Raycast(this.transform.position, dif, dif.magnitude, blinds);
-        if (hit.collider) return false;
-
-        return true;
-    }
-
-    //Action to perform when in range of player                             ***Code is written by Nicky from this line down
+    //Action to perform when in range of player                             
     protected void Action()
     {
-        //Check if attack is on cooldown
-        if(!attackCD)
-        {
-            interrupt = true;          //Pause roaming/follow AI
+        if(!attackCD)   //Check if attack is on cooldown
             Attack();
-            interrupt = false;         //Resume AI behaviour
-        }
     }
 
     //Enemy melee attack
     protected void MeleeAttack()
     {
-        if (this.hp <= 0)               //Enemy can not attack if dead
+        if (this.hp <= 0)           //Enemy can not attack if dead
             return;
-        layerMask = LayerMask.GetMask("Shield");    
-        playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
-        if (playerHit == null)          //If enemy didn't hit shield
+        playerHit = Physics2D.OverlapCircle(transform.position, attackReach, shieldMask);
+        if (playerHit == null)      //If enemy didn't hit shield
         {
-            layerMask = LayerMask.GetMask("Player");
-            playerHit = Physics2D.OverlapBox(transform.position, attackReach, 0f, layerMask);
-            if (playerHit == null) { }  //If we hit nothing
+            playerHit = Physics2D.OverlapCircle(transform.position, attackReach, playerMask);
+            if (playerHit == null)  //If enemy hit nothing
+                return;
             else if (manager.player.stamina <= 0 || playerHit.gameObject == manager.player.gameObject) //If enemy hits the player or player is out of stamina
             {
                 manager.player.Hurt(attack_damage, this.gameObject.transform);  //Deal damage to player
@@ -253,7 +106,7 @@ public class BaseEnemyAI : LivingEntity
         GameObject projectile = Instantiate(enemyProjectile, transform.position + hitBoxOffset, transform.rotation);    //Create projectile copy
         projectile.GetComponent<Projectile>().damage = this.attack_damage;  //Match the projectile's damage to the enemy's attack
         projectile.GetComponent<Rigidbody2D>().velocity = (target.position - this.transform.position).normalized * projectileSpeed;   //Set projectile velocity
-        StartCoroutine(AtkCooldownCoroutine());                 //Start attack cooldown
+        StartCoroutine(AtkCooldownCoroutine());     //Start attack cooldown
     }
 
     //Cooldown between regular attacks
@@ -274,18 +127,35 @@ public class BaseEnemyAI : LivingEntity
     {
         base.Death();
         anim.SetTrigger("Death");
-        StartCoroutine(DeathCoroutine(1f));
+        StartCoroutine(DeathCoroutine());
     }
 
-    //Wait 1 second before removing corpse
-    private IEnumerator DeathCoroutine(float seconds)
+    //Wait before despawning enemy corpses
+    private IEnumerator DeathCoroutine()
     {
+        float seconds = this.despawnTimer;
         while (seconds > 0)
         {
             seconds -= Time.deltaTime;
             yield return null;
         }
-        if (this != manager.player)
+        if (this != manager.player) //Don't despawn the player's corpse
             Destroy(gameObject);
+    }
+
+    //Roam around when player not within range
+    private IEnumerator RoamingCoroutine()
+    {
+        roamingCD = true;
+        Vector2 direction = new Vector2(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)).normalized;   
+        Vector2 velocity = direction * moveSpeed;
+        rigid.velocity = new Vector2(velocity.x, velocity.y);   //Move in random direction
+        float seconds = Random.Range(0f, this.roamingTimer);    //Cooldown before moving again
+        while (seconds > 0)
+        {
+            seconds -= Time.deltaTime;
+            yield return null;
+        }
+        roamingCD = false; //Reset cooldown
     }
 }

@@ -9,7 +9,7 @@ public class Bombs : Throwable
     [SerializeField] protected LayerMask mask;
     [SerializeField] private GameObject puff;
     //audio
-    private void Start()
+    new private void Start()
     {
         base.Start();
         Invoke("Hit", timer);

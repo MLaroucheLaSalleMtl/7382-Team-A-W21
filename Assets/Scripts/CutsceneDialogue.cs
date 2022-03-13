@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -18,7 +17,7 @@ public class CutsceneDialogue : MonoBehaviour
     {
         if (manager = GameManager.instance)
             if (manager.player)
-                manager.StopPlayerMove();
+                manager.StopPlayerMove();   //Disable player movement during cutscene
         Cursor.lockState = CursorLockMode.Locked;   //Unlock and show cursor
         Cursor.visible = false;
     }
@@ -61,7 +60,7 @@ public class CutsceneDialogue : MonoBehaviour
                 dialogueText.text = "Well this is awkward.";
                 break;
             default:
-                EnableMenu();
+                EnableMenu();   //Enable end game menu
                 break;
         }
         GetComponent<AudioSource>().Play();     //Play sound effect
@@ -102,7 +101,7 @@ public class CutsceneDialogue : MonoBehaviour
     {
         victoryMenu.SetActive(true);
         Button[] buttons = victoryMenu.GetComponentsInChildren<Button>();
-        foreach (Button btn in buttons)             //Enable the buttons
+        foreach (Button btn in buttons)     //Enable the buttons
             btn.enabled = true;
         EventSystem.current.SetSelectedGameObject(defaultBtn.gameObject, null);     //Select first button 
         Cursor.lockState = CursorLockMode.None;     //Unlock and show cursor

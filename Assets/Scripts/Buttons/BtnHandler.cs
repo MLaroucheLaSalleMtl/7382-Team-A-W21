@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,15 +17,16 @@ public class BtnHandler : MonoBehaviour, IPointerEnterHandler, IDeselectHandler,
         GetComponent<Selectable>().OnPointerExit(null); 
     }
 
+    //Button click behaviour 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.selectedObject.GetComponent<Button>() != null)
         {
             if (manager)
-                manager.PlayButtonAudio();
+                manager.PlayButtonAudio();  //Play button click sound effect
             GetComponent<Button>().onClick.Invoke();    //Trigger button press on click, not release
         }
-        Input.ResetInputAxes();     //Avoid double selection
+        Input.ResetInputAxes();   //Prevents double selection  
     }
 
     //Puts focus on the button the mouse hovers
